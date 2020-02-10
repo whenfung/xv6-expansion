@@ -524,7 +524,8 @@ procdump(void)
       state = states[p->state];
     else
       state = "???";
-    cprintf("\nPID=%d state=%s priority=%d %s", p->pid, state, p->priority, p->name);
+    cprintf("\nPID=%d state=%s priority=%d %s\n", p->pid, state, p->priority, p->name);
+    cprintf("stack: ");
     if(p->state == SLEEPING){
       getcallerpcs((uint*)p->context->ebp+2, pc);
       for(i=0; i<10 && pc[i] != 0; i++)
@@ -532,4 +533,20 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int chpr(int pid, int priority)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p ++)
+  {
+    if(p->pid == pid)
+    {
+      p->priority = priority;
+      break;
+    }
+  } 
+  release(&ptable.lock);
+  return pid;
 }
