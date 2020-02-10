@@ -537,6 +537,10 @@ procdump(void)
 
 int chpr(int pid, int priority)
 {
+
+  if(pid <= 0 || pid >= NPROC) return -1;
+  if(priority < 0 || priority > 20) return -1; 
+
   struct proc *p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p ++)
