@@ -182,6 +182,7 @@ UPROGS=\
 	_wc\
 	_chpr\
 	_prio-sched\
+	_prio\
 	_zombie\
 
 fs.img: mkfs README.md $(UPROGS)
