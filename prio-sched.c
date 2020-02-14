@@ -4,10 +4,13 @@
 
 int main() {
   int pid;
-  int data[8];
   printf(1, "This is a demo for priority scheduling!\n");
-
-  pid = fork();
+  
+  pid = getpid();
+  chpr(pid, 19);    // 父进程优先级设置为 19
+  
+  // 创建 4 个子进程
+  pid = fork();     
   if(pid != 0) {
     chpr(pid, 15);   // set 1st child's prio to 15
     printf(1, "pid%d prio%d.\n", pid, 15);
@@ -25,20 +28,17 @@ int main() {
         pid = fork();
         if(pid != 0) {
           chpr(pid, 5);    // set 4th child's prio to 5
-          printf(1, "pid%d prio%d.\n", pid, 15);
+          printf(1, "pid%d prio%d.\n", pid, 5);
         }
       }
     }
   }
   pid = getpid();
   printf(1, "pid=%d started.\n", pid);
-  for(int i = 0; i < 2; i ++) {
-    printf(1, "pid=%d runing\n", pid);
-    for(int j = 0; j < 1024*100; j++)
-      for(int k = 0; k < 1024; k ++)  
-        data[k%8] = pid * k;
-  }
-  printf(1, "%d \n", data[pid]);
+
+  for(int i = 1; i < 1000000; i ++); // 耗费时间
+    
+  printf(1, "pid=%d done.\n", pid);
 
   exit();
 }
