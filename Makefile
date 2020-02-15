@@ -181,6 +181,7 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_sh_rw_nolock\
+	_sh_rw_lock\
 	_zombie\
 
 fs.img: mkfs README.md $(UPROGS)

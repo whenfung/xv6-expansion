@@ -20,6 +20,62 @@ void initsem() {
   }
 }
 
+
+int sys_sem_create(void) {
+  int n_sem;
+  if(argint(0, &n_sem) < 0) 
+    return -1;
+  for(int i = 0; i < SEM_MAX_NUM; i ++) {
+    acquire(&sems[i].lock);
+    if(sems[i].allocated == 0) {
+      sems[i].allocated = 1;
+      sems[i].resource_count = n_sem;
+      cprintf("create %d sem\n", i);
+      release(&sems[i].lock);
+      return i;
+    }
+    release(&sems[i].lock);
+  }
+  return -1;
+}
+
+int sys_sem_free(void) {
+  int id;
+  if(argint(0, &id) < 0)
+    return -1;
+  acquire(&sems[id].lock);
+  if(sems[id].allocated == 1 && sems[id].resource_count > 0) {
+    sems[id].allocated = 0;
+    cprintf("free %d sem\n", id);
+  }
+  release(&sems[id].lock);
+  return 0;
+}
+
+int sys_sem_p(void) {
+  int id;
+  if(argint(0, &id) < 0)
+    return -1;
+  acquire(&sems[id].lock);
+  sems[id].resource_count --;
+  if(sems[id].resource_count < 0)
+    sleep(&sems[id], &sems[id].lock);
+  release(&sems[id].lock);
+  return 0;
+}
+
+int sys_sem_v(void) {
+  int id;
+  if(argint(0, &id) < 0)
+    return -1;
+  acquire(&sems[id].lock);
+  sems[id].resource_count ++;
+  if(sems[id].resource_count < 1)
+    wakeup1p(&sems[id]);
+  release(&sems[id].lock);
+  return 0;
+} 
+
 void
 initlock(struct spinlock *lk, char *name)
 {
