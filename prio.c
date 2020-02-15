@@ -5,19 +5,20 @@
 
 int 
 main(int argc, char* argv[]){
-	int k, n, pid;
-	double x = 0, z, d;
+	int n, pid;
+  int k;        // 任务量
+  double x = 0;
 
 	if( argc < 2 )  n = 1;                   // default value
 	else            n = atoi ( argv[1] );    // from command line
 	
 	if ( n < 0 || n > 20 ) n = 2;
 
-	if ( argc < 3)  d = 1.0;
-	else            d = 1.0 / atoi(argv[2]);
+	if ( argc < 3)  k = 1;
+	else            k = atoi(argv[2]);
 
 	pid = 0;
-	for (k = 0; k < n; k++) {
+	for (int i = 0; i < n; i++) {
 		pid = fork();
 		if(pid < 0) {
 			printf(1, "%d failed in fork!\n", getpid());
@@ -28,9 +29,10 @@ main(int argc, char* argv[]){
 		} 
     else {                    // child 
 			printf(1, "Child %d created\n", getpid());
-			for (z = 0; z < 8000000.0; z += d){
-				x = x + 3.14 * 89.64;   // useless calculations to consume CPU time  
-			}
+			while(k--)
+        for (double j = 0; j < 8000000; j += 0.5){
+				  x = x + 3.14 * 89.64;   // useless calculations to consume CPU time  
+			  }
       printf(1, "Child %d finish its work!\n");
 			break;
 		}
