@@ -89,3 +89,15 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int sys_sh_var_read() {
+  return sh_var;
+}
+
+int sys_sh_var_write() {
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  sh_var = n;
+  return sh_var;
+}
