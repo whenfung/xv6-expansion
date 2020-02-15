@@ -132,6 +132,7 @@ void            initlock(struct spinlock*, char*);
 void            release(struct spinlock*);
 void            pushcli(void);
 void            popcli(void);
+void            initsem(void);
 
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);

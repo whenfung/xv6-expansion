@@ -9,6 +9,17 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
+int sem_used_count = 0;
+struct sem sems[SEM_MAX_NUM];
+
+void initsem() {
+  for(int i = 0; i < SEM_MAX_NUM; i ++) {
+    initlock(&(sems[i].lock), "semaphore");
+    sems[i].allocated = 0;
+  }
+}
+
 void
 initlock(struct spinlock *lk, char *name)
 {
