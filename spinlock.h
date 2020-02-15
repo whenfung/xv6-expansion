@@ -9,3 +9,4 @@ struct spinlock {
                      // that locked the lock.
 };
 
+int sh_var;          // 全局共享变量
