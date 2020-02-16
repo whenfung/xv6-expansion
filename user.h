@@ -23,6 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+char* myalloc(int);
+int myfree(void*);
 
 // ulib.c
 int stat(const char*, struct stat*);
