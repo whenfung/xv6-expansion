@@ -35,9 +35,9 @@ struct context {
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 struct vma{
-  int start;   // 起始地址
-  int length;  // 长度
-  int next;    // 下一块内存索引，-1 表示未分配
+  int start;   // 内存块起始地址
+  int length;  // 内存块大小
+  int next;    // 下一块内存索引，-1 表示未分配，0 表示没有下一个
 };
 
 // Per-process state
@@ -55,7 +55,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  struct vma vm[10];           // vm[0] 为指针头
+  struct vma vm[10];           // vm[0] 为指针头，剩余 9 个可用
 };
 
 // Process memory is laid out contiguously, low addresses first:

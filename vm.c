@@ -248,6 +248,7 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   return newsz;
 }
 
+// start 和 end 都是虚拟地址
 int 
 myallocuvm(pde_t *pgdir, uint start, uint end) {
   char *mem;
@@ -297,6 +298,7 @@ deallocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   return newsz;
 }
 
+// start 和 end 都是虚拟地址
 int mydeallocuvm(pde_t *pgdir, uint start, uint end) {
   pte_t *pte;
   uint a, pa;

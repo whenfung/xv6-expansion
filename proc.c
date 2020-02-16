@@ -89,7 +89,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
 
-  for(int i = 1; i < 10; i++)
+  for(int i = 1; i < 10; i++)  // vma 的初始化
     p->vm[i].next = -1;
   p->vm[0].next = 0;
 
