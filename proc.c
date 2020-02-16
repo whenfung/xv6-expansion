@@ -178,6 +178,55 @@ growproc(int n)
   return 0;
 }
 
+int mygrowproc(int n) {  // 首次最佳适应算法
+  struct proc *proc = myproc();
+  struct vma *vm = proc->vm;
+  int start = proc->sz;
+  int pre = 0;
+  int i, k;   // 寻找插入的地方
+  for(i = vm[0].next; i != 0; i = vm[i].next) {
+    if(start + n < vm[i].start)
+      break;
+    start = vm[i].start + vm[i].length;
+    pre = i;
+  }
+  
+  for(k = 1; k < 10; k++) {  // 寻找未用的 vma
+    if(vm[k].next == -1) {
+      vm[k].next = i;
+      vm[k].start = start;
+      vm[k].length = n;
+
+      vm[pre].next = k;
+
+      myallocuvm(proc->pgdir, start, start + n);
+      switchuvm(proc);
+      return start;     // 返回分配的地址
+    }
+  }
+  switchuvm(proc);
+  return 0;
+}
+
+int 
+myreduceproc(int start) {  // 释放 start 开头的内存块
+  struct proc *proc = myproc();
+  int prev = 0;
+  int i;
+
+  for(i = proc->vm[0].next; i != 0; i = proc->vm[i].next) {
+    if(proc->vm[i].start == start) {
+      mydeallocuvm(proc->pgdir, start, start + proc->vm[i].length);
+      proc->vm[prev].next = proc->vm[i].next;
+      proc->vm[i].next = -1;
+      break;
+    }
+    prev = i;
+  }
+  switchuvm(proc);
+  return 0;
+}
+
 // Create a new process copying p as the parent.
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
