@@ -134,13 +134,13 @@ void            release(struct spinlock*);
 void            pushcli(void);
 void            popcli(void);
 void            initsem(void);
+extern int      sh_var;
 
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);
 void            releasesleep(struct sleeplock*);
 int             holdingsleep(struct sleeplock*);
 void            initsleeplock(struct sleeplock*, char*);
-int             sh_var;
 
 // string.c
 int             memcmp(const void*, const void*, uint);

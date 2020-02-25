@@ -12,6 +12,7 @@
 
 int sem_used_count = 0;
 struct sem sems[SEM_MAX_NUM];
+int sh_var;              // 全局共享变量
 
 void initsem() {
   for(int i = 0; i < SEM_MAX_NUM; i ++) {

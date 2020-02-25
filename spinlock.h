@@ -9,8 +9,6 @@ struct spinlock {
                      // that locked the lock.
 };
 
-int sh_var;          // 全局共享变量
-
 #define SEM_MAX_NUM 128          // 信号量总数
 struct sem{
   struct spinlock lock;          // 内核自旋锁
