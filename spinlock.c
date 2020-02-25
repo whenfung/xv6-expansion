@@ -66,9 +66,9 @@ int sys_sem_p(void) {
   sems[i].resources --;
   if(sems[i].resources < 0) {
     sems[i].used ++;
-    sleep(&sems[i], &sems[i].lock);
+    sleep(&sems[i], &sems[i].lock);  // 释放 sems[i].lock 后阻塞
   }
-  release(&sems[i].lock);
+  release(&sems[i].lock);            // 唤醒后重新持有 sems[i].lock
   return 0;
 }
 
@@ -78,8 +78,8 @@ int sys_sem_v(void) {
     return -1;
   acquire(&sems[i].lock);
   sems[i].resources ++;
-  if(sems[i].resources < 1) {
-    wakeup1p(&sems[i]);
+  if(sems[i].resources < 1) {    
+    wakeup1p(&sems[i]);        // 唤醒等待该资源的其中 1 个进程
     sems[i].used --;
   }
   release(&sems[i].lock);
