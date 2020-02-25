@@ -30,7 +30,7 @@ int sys_sem_create(void) {
     if(sems[i].allocated == 0) {
       sems[i].allocated = 1;
       sems[i].resources = resources;
-      sems[i].len = 0;
+      sems[i].used = 0;
       cprintf("create %d sem\n", i);
       release(&sems[i].lock);
       return i;
@@ -49,7 +49,7 @@ int sys_sem_free(void) {
     return -1;
 
   acquire(&sems[i].lock);
-  if(sems[i].allocated == 1 && sems[i].len == 0) {
+  if(sems[i].allocated == 1 && sems[i].used == 0) {
     sems[i].allocated = 0;
     cprintf("free %d sem\n", i);
   }
@@ -65,7 +65,7 @@ int sys_sem_p(void) {
   acquire(&sems[i].lock);
   sems[i].resources --;
   if(sems[i].resources < 0) {
-    sems[i].len ++;
+    sems[i].used ++;
     sleep(&sems[i], &sems[i].lock);
   }
   release(&sems[i].lock);
@@ -80,7 +80,7 @@ int sys_sem_v(void) {
   sems[i].resources ++;
   if(sems[i].resources < 1) {
     wakeup1p(&sems[i]);
-    sems[i].len --;
+    sems[i].used --;
   }
   release(&sems[i].lock);
   return 0;

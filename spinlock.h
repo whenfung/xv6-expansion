@@ -12,7 +12,7 @@ struct spinlock {
 #define SEM_MAX_NUM 128          // 信号量总数
 struct sem{
   struct spinlock lock;          // 内核自旋锁
-  int len;                       // 被阻塞的进程个数
+  int used;                      // 已用资源
   int resources;                 // 资源计数
   int allocated;                 // 是否被分配：1 已分配，0 未分配
 };
