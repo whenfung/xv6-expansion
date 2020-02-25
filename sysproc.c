@@ -50,8 +50,8 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
-  addr = myproc()->sz;
-  if(growproc(n) < 0)
+  addr = myproc()->sz;  // 0~sz 为当前用户地址
+  if(growproc(n) < 0)   // addr~addr+n 为新分配内存
     return -1;
   return addr;
 }

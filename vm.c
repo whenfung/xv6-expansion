@@ -38,8 +38,8 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
   pde_t *pde;
   pte_t *pgtab;
 
-  pde = &pgdir[PDX(va)];
-  if(*pde & PTE_P){
+  pde = &pgdir[PDX(va)];   // page directory entry
+  if(*pde & PTE_P){        // 存在页表
     pgtab = (pte_t*)P2V(PTE_ADDR(*pde));
   } else {
     if(!alloc || (pgtab = (pte_t*)kalloc()) == 0)
@@ -63,18 +63,18 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
   char *a, *last;
   pte_t *pte;
 
-  a = (char*)PGROUNDDOWN((uint)va);
+  a = (char*)PGROUNDDOWN((uint)va);  // 下对齐
   last = (char*)PGROUNDDOWN(((uint)va) + size - 1);
   for(;;){
-    if((pte = walkpgdir(pgdir, a, 1)) == 0)
+    if((pte = walkpgdir(pgdir, a, 1)) == 0)  // page table entry
       return -1;
     if(*pte & PTE_P)
       panic("remap");
-    *pte = pa | perm | PTE_P;
+    *pte = pa | perm | PTE_P;  // 物理地址 | 权限 | 占用标志
     if(a == last)
       break;
-    a += PGSIZE;
-    pa += PGSIZE;
+    a += PGSIZE;               // 下一个虚页的起始地址
+    pa += PGSIZE;              // 下一个页帧的起始物理地址         
   }
   return 0;
 }
@@ -224,14 +224,14 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   char *mem;
   uint a;
 
-  if(newsz >= KERNBASE)
+  if(newsz >= KERNBASE)  // KERNBASE 即以上的地址映射到内核
     return 0;
   if(newsz < oldsz)
     return oldsz;
 
-  a = PGROUNDUP(oldsz);
-  for(; a < newsz; a += PGSIZE){
-    mem = kalloc();
+  a = PGROUNDUP(oldsz);           // 向上对齐 4K
+  for(; a < newsz; a += PGSIZE){  // 逐帧分配
+    mem = kalloc();               // mem 为虚拟地址
     if(mem == 0){
       cprintf("allocuvm out of memory\n");
       deallocuvm(pgdir, newsz, oldsz);
@@ -254,7 +254,7 @@ myallocuvm(pde_t *pgdir, uint start, uint end) {
   char *mem;
   uint a;
   
-  a = PGROUNDUP(start);
+  a = PGROUNDUP(start);     
   for(; a < end; a += PGSIZE) {
     mem = kalloc();
     if(mem == 0) {
@@ -281,13 +281,13 @@ deallocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   if(newsz >= oldsz)
     return oldsz;
 
-  a = PGROUNDUP(newsz);
-  for(; a  < oldsz; a += PGSIZE){
-    pte = walkpgdir(pgdir, (char*)a, 0);
+  a = PGROUNDUP(newsz);                    // 向上对齐
+  for(; a  < oldsz; a += PGSIZE){          // 逐帧处理
+    pte = walkpgdir(pgdir, (char*)a, 0);   // page table entry
     if(!pte)
       a = PGADDR(PDX(a) + 1, 0, 0) - PGSIZE;
     else if((*pte & PTE_P) != 0){
-      pa = PTE_ADDR(*pte);
+      pa = PTE_ADDR(*pte);                 // 高 20 位是物理地址
       if(pa == 0)
         panic("kfree");
       char *v = P2V(pa);

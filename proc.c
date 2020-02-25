@@ -165,11 +165,11 @@ growproc(int n)
   uint sz;
   struct proc *curproc = myproc();
 
-  sz = curproc->sz;
-  if(n > 0){
+  sz = curproc->sz;    // 0~sz 为当前内存大小
+  if(n > 0){           // 扩容为 0~sz+n
     if((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
       return -1;
-  } else if(n < 0){
+  } else if(n < 0){    // 缩容为 0~sz+n
     if((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0)
       return -1;
   }
