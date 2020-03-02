@@ -39,8 +39,8 @@ seta20.2:
   # Switch from real to protected mode.  Use a bootstrap GDT that makes
   # virtual addresses map directly to physical addresses so that the
   # effective memory map doesn't change during the transition.
-  lgdt    gdtdesc
-  movl    %cr0, %eax
+  lgdt    gdtdesc        # 将 gdtdesc 变量赋给 GDTR 寄存器
+  movl    %cr0, %eax     # 三条指令将 cr0 的 CR0_PE 位置 1，也就是第 0 位
   orl     $CR0_PE, %eax
   movl    %eax, %cr0
 
