@@ -4,18 +4,18 @@
 
 // File header
 struct elfhdr {
-  uint magic;  // must equal ELF_MAGIC
+  uint magic;     // must equal ELF_MAGIC
   uchar elf[12];
   ushort type;
   ushort machine;
   uint version;
   uint entry;
-  uint phoff;
+  uint phoff;     // 程序段表的偏移地址
   uint shoff;
   uint flags;
   ushort ehsize;
   ushort phentsize;
-  ushort phnum;
+  ushort phnum;   // 段表的项数
   ushort shentsize;
   ushort shnum;
   ushort shstrndx;
@@ -23,12 +23,12 @@ struct elfhdr {
 
 // Program section header
 struct proghdr {
-  uint type;
-  uint off;
+  uint type;     // 类型
+  uint off;      // 磁盘偏移
   uint vaddr;
   uint paddr;
-  uint filesz;
-  uint memsz;
+  uint filesz;   // 文件大小
+  uint memsz;    // 所需内存大小
   uint flags;
   uint align;
 };

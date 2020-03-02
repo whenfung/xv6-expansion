@@ -17,9 +17,9 @@ void readseg(uchar*, uint, uint);
 void
 bootmain(void)
 {
-  struct elfhdr *elf;
-  struct proghdr *ph, *eph;
-  void (*entry)(void);
+  struct elfhdr *elf;       // 指向 ELF 头部
+  struct proghdr *ph, *eph; // 指向 ELF 段描述信息
+  void (*entry)(void);      // kernel 的入口，函数指针
   uchar* pa;
 
   elf = (struct elfhdr*)0x10000;  // scratch space
@@ -32,11 +32,11 @@ bootmain(void)
     return;  // let bootasm.S handle error
 
   // Load each program segment (ignores ph flags).
-  ph = (struct proghdr*)((uchar*)elf + elf->phoff);
-  eph = ph + elf->phnum;
-  for(; ph < eph; ph++){
-    pa = (uchar*)ph->paddr;
-    readseg(pa, ph->filesz, ph->off);
+  ph = (struct proghdr*)((uchar*)elf + elf->phoff); // 指向第一个段描述符
+  eph = ph + elf->phnum;               // 指向最后一个段描述符
+  for(; ph < eph; ph++){               // 逐个段处理
+    pa = (uchar*)ph->paddr;            // 强制转换
+    readseg(pa, ph->filesz, ph->off);  // 载入内存
     if(ph->memsz > ph->filesz)
       stosb(pa + ph->filesz, 0, ph->memsz - ph->filesz);
   }
