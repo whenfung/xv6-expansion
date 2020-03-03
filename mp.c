@@ -98,13 +98,13 @@ mpinit(void)
   struct mpproc *proc;
   struct mpioapic *ioapic;
 
-  if((conf = mpconfig(&mp)) == 0)
+  if((conf = mpconfig(&mp)) == 0)   // 获取 MP 配置表头，0 表示没找到，调用 panic
     panic("Expect to run on an SMP");
   ismp = 1;
-  lapic = (uint*)conf->lapicaddr;
+  lapic = (uint*)conf->lapicaddr;   // lapic 地址
   for(p=(uchar*)(conf+1), e=(uchar*)conf+conf->length; p<e; ){
     switch(*p){
-    case MPPROC:
+    case MPPROC:    // 入口类型为处理器
       proc = (struct mpproc*)p;
       if(ncpu < NCPU) {
         cpus[ncpu].apicid = proc->apicid;  // apicid may differ from ncpu
@@ -112,7 +112,7 @@ mpinit(void)
       }
       p += sizeof(struct mpproc);
       continue;
-    case MPIOAPIC:
+    case MPIOAPIC:                       // 入口类型为 IOAPIC
       ioapic = (struct mpioapic*)p;
       ioapicid = ioapic->apicno;
       p += sizeof(struct mpioapic);
