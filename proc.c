@@ -532,3 +532,11 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int 
+getcpuid(){
+  cli();             // 关中断
+  uint id = cpuid(); // cpuid() 必须在关中断环境下执行
+  sti();             // 开中断
+  return id;
+}
