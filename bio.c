@@ -37,10 +37,10 @@ struct {
 
 // rawfile
 struct {
-  spinlock lock;   
+  struct spinlock lock;   
   int total_blocks;  // 总盘块数目
   int free_blocks;   // 剩余的数据盘块
-  char bitmap[125];  // 总共 8*125 个盘块
+  char bitmap[1000];  // 总共 8*1000 个盘块
 } rawdisk;
 
 void
@@ -64,8 +64,8 @@ binit(void)
 
   // init rawdisk
   initlock(&rawdisk.lock, "rawdisk");
-  rawdisk.total_blocks = 1000;
-  rawdisk.free_blocks = 1000;
+  rawdisk.total_blocks = 8000;
+  rawdisk.free_blocks = 8000;
   memset(rawdisk.bitmap, 0, sizeof(rawdisk));
 }
 

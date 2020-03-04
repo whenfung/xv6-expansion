@@ -91,7 +91,7 @@ CFLAGS += -fno-pie -nopie
 endif
 
 rawdisk.img:
-	dd if=/dev/zero of=rawdisk.img bs=512 count=1000
+	dd if=/dev/zero of=rawdisk.img bs=512 count=8000
 
 xv6.img: bootblock kernel
 	dd if=/dev/zero of=xv6.img count=10000
