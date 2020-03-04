@@ -35,6 +35,14 @@ struct {
   struct buf head;
 } bcache;
 
+// rawfile
+struct {
+  spinlock lock;   
+  int total_blocks;  // 总盘块数目
+  int free_blocks;   // 剩余的数据盘块
+  char bitmap[125];  // 总共 8*125 个盘块
+} rawdisk;
+
 void
 binit(void)
 {
@@ -53,6 +61,12 @@ binit(void)
     bcache.head.next->prev = b;
     bcache.head.next = b;
   }
+
+  // init rawdisk
+  initlock(&rawdisk.lock, "rawdisk");
+  rawdisk.total_blocks = 1000;
+  rawdisk.free_blocks = 1000;
+  memset(rawdisk.bitmap, 0, sizeof(rawdisk));
 }
 
 // Look through buffer cache for block on device dev.
