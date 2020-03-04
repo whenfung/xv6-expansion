@@ -142,14 +142,14 @@ writetest(void)
   int i;
 
   printf(stdout, "small file test\n");
-  fd = open("small", O_CREATE|O_RDWR);
+  fd = open("small", O_CREATE|O_RDWR);  // 创建文件
   if(fd >= 0){
     printf(stdout, "creat small succeeded; ok\n");
   } else {
     printf(stdout, "error: creat small failed!\n");
     exit();
   }
-  for(i = 0; i < 100; i++){
+  for(i = 0; i < 100; i++){  // 写文件
     if(write(fd, "aaaaaaaaaa", 10) != 10){
       printf(stdout, "error: write aa %d new file failed\n", i);
       exit();
@@ -160,24 +160,24 @@ writetest(void)
     }
   }
   printf(stdout, "writes ok\n");
-  close(fd);
-  fd = open("small", O_RDONLY);
+  close(fd);   // 本进程结束对该文件的使用
+  fd = open("small", O_RDONLY);  // 只读方式打开文件
   if(fd >= 0){
     printf(stdout, "open small succeeded ok\n");
   } else {
     printf(stdout, "error: open small failed!\n");
     exit();
   }
-  i = read(fd, buf, 2000);
+  i = read(fd, buf, 2000);  // 读文件
   if(i == 2000){
     printf(stdout, "read succeeded ok\n");
   } else {
     printf(stdout, "read failed\n");
     exit();
   }
-  close(fd);
+  close(fd);  // 关文件
 
-  if(unlink("small") < 0){
+  if(unlink("small") < 0){   // 删文件
     printf(stdout, "unlink small failed\n");
     exit();
   }
