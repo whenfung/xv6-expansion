@@ -30,12 +30,8 @@ struct superblock sb;
 // Read the first block of rawdisk
 void
 readraw(int dev, char* buf) {
-  // struct buf *br;
   cprintf("dev: %d\n", dev);
   buf[0] = 'a';
-  // br = bread(dev, 1);
-  // memmove(buf, br->data, 512);
-  // brelse(br);
 }
 
 // Read the super block.

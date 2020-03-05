@@ -28,6 +28,6 @@ main()
   
   printf(1, "addr: %p\n", buf);
   readd(buf);
-  printf(1, "buf: %c\n", buf[0]);
+  printf(1, "%s\n", buf);
   exit();
 }
