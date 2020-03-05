@@ -27,12 +27,22 @@ static void itrunc(struct inode*);
 // only one device
 struct superblock sb; 
 
+// Read the first block of rawdisk
+void
+readraw(int dev, char* buf) {
+  // struct buf *br;
+  cprintf("dev: %d\n", dev);
+  buf[0] = 'a';
+  // br = bread(dev, 1);
+  // memmove(buf, br->data, 512);
+  // brelse(br);
+}
+
 // Read the super block.
 void
 readsb(int dev, struct superblock *sb)
 {
   struct buf *bp;
-
   bp = bread(dev, 1);
   memmove(sb, bp->data, sizeof(*sb));
   brelse(bp);

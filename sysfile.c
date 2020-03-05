@@ -443,3 +443,15 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int 
+sys_readd()
+{
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  char* addr = (char*)n;
+  cprintf("addr: %p\n", addr);
+  readraw(2, addr);  
+  return 0;
+}

@@ -24,6 +24,10 @@ void readme() {
 int
 main()
 { 
-  readme();
+  // readme();
+  
+  printf(1, "addr: %p\n", buf);
+  readd(buf);
+  printf(1, "buf: %c\n", buf[0]);
   exit();
 }

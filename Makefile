@@ -90,8 +90,9 @@ ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
 CFLAGS += -fno-pie -nopie
 endif
 
-rawdisk.img:
+rawdisk.img: README.md  
 	dd if=/dev/zero of=rawdisk.img bs=512 count=8000
+	dd if=README.md of=rawdisk.img
 
 xv6.img: bootblock kernel
 	dd if=/dev/zero of=xv6.img count=10000
