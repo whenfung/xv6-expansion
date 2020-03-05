@@ -99,7 +99,7 @@ bget(uint dev, uint blockno)
       b->flags = 0;
       b->refcnt = 1;
       release(&bcache.lock);
-      acquiresleep(&b->lock);
+      acquiresleep(&b->lock);  // 进入睡眠
       return b;
     }
   }

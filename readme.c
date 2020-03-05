@@ -28,6 +28,7 @@ main()
   
   printf(1, "addr: %p\n", buf);
   readd(buf);
+  buf[100] = '\0';
   printf(1, "%s\n", buf);
   exit();
 }

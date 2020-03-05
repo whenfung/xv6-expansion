@@ -20,10 +20,10 @@ initsleeplock(struct sleeplock *lk, char *name)
 }
 
 void
-acquiresleep(struct sleeplock *lk)
+acquiresleep(struct sleeplock *lk)  // 请求睡眠
 {
-  acquire(&lk->lk);
-  while (lk->locked) {
+  acquire(&lk->lk);                 
+  while (lk->locked) {     //  每次唤醒后还要检测是否锁着
     sleep(lk, &lk->lk);
   }
   lk->locked = 1;
