@@ -248,6 +248,21 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   return newsz;
 }
 
+void pgfault(){
+  char *mem;
+  uint a;
+  a = PGROUNDDOWN(rcr2());   // rcr2() 引起缺页中断的进程空间地址
+  mem = kalloc();            // 此时申请物理页帧
+  if (mem == 0) {
+    cprintf("kalloc out of memory!\n");
+    myproc()->killed = 1;
+    return;
+  }
+  memset(mem, 0, PGSIZE);
+  mappages(myproc()->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W | PTE_U);
+  lcr3(V2P(myproc()->pgdir));
+}
+
 // Deallocate user pages to bring the process size from oldsz to
 // newsz.  oldsz and newsz need not be page-aligned, nor does newsz
 // need to be less than oldsz.  oldsz can be larger than the actual
