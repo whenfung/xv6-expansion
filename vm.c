@@ -252,6 +252,11 @@ void pgfault(){
   char *mem;
   uint a;
   a = PGROUNDDOWN(rcr2());   // rcr2() 引起缺页中断的进程空间地址
+  if(a >= myproc()->sz) {
+    cprintf("invalid address!\n");
+    myproc()->killed = 1;
+    return;
+  }
   mem = kalloc();            // 此时申请物理页帧
   if (mem == 0) {
     cprintf("kalloc out of memory!\n");
