@@ -3,7 +3,7 @@
 #include "user.h"   // 用户可用的函数和系统调用
 #include "fcntl.h"  // 打开文件的方式
 
-char buf[8192];
+char buf[512] = "hello world!";
 
 void readme() {
   int fd = open("README.md", O_RDONLY);   // fd >= 0 表示创建成功
@@ -28,7 +28,5 @@ main()
   
   printf(1, "addr: %p\n", buf);
   readd(buf);
-  buf[100] = '\0';
-  printf(1, "%s\n", buf);
   exit();
 }

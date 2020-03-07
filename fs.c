@@ -31,9 +31,12 @@ struct superblock sb;
 void
 readraw(int dev, char* fb) {
   cprintf("dev: %d\n", dev);
-  
+  cprintf("%s\n", fb);  
   struct buf *bp = bread(2, 0);
   memmove(fb, bp->data, 512);
+  for(int i = 0; i < 10; i++)
+    cprintf("%c", fb[i]);
+  cprintf("\n");
   brelse(bp); 
 }
 

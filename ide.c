@@ -65,6 +65,15 @@ ideinit(void)
     }
   }
 
+  // Check if disk 2 is present
+  outb(0x1f6, 0xe0 | 2<<4);
+  for(i=0; i<1000; i++){
+    if(inb(0x1f7) != 0){
+      cprintf("检测到 rawdisk\n");
+      break;
+    }
+  }
+
   // Switch back to disk 0.
   outb(0x1f6, 0xe0 | (0<<4));
 }
