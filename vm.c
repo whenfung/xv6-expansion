@@ -32,16 +32,16 @@ seginit(void)
 // Return the address of the PTE in page table pgdir
 // that corresponds to virtual address va.  If alloc!=0,
 // create any required page table pages.
-static pte_t *
+static pte_t *                     // 根据页目录查找页表
 walkpgdir(pde_t *pgdir, const void *va, int alloc)
 {
   pde_t *pde;
   pte_t *pgtab;
 
-  pde = &pgdir[PDX(va)];
-  if(*pde & PTE_P){
-    pgtab = (pte_t*)P2V(PTE_ADDR(*pde));
-  } else {
+  pde = &pgdir[PDX(va)];        // 获取页目录项
+  if(*pde & PTE_P){             // 存在对应的页表了
+    pgtab = (pte_t*)P2V(PTE_ADDR(*pde));  // PTE 的高 20 位
+  } else {                     // 分配页表
     if(!alloc || (pgtab = (pte_t*)kalloc()) == 0)
       return 0;
     // Make sure all those PTE_P bits are zero.
