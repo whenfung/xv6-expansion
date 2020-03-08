@@ -33,8 +33,8 @@ readsb(int dev, struct superblock *sb)
 {
   struct buf *bp;
 
-  bp = bread(dev, 1);
-  memmove(sb, bp->data, sizeof(*sb));
+  bp = bread(dev, 1);   // 读取超级块内容
+  memmove(sb, bp->data, sizeof(*sb));  // 将超级块内容拷贝到 sb 全局变量中
   brelse(bp);
 }
 
@@ -44,32 +44,32 @@ bzero(int dev, int bno)
 {
   struct buf *bp;
 
-  bp = bread(dev, bno);
-  memset(bp->data, 0, BSIZE);
-  log_write(bp);
-  brelse(bp);
+  bp = bread(dev, bno);       // bread 读取盘块内容到缓存块中
+  memset(bp->data, 0, BSIZE); // 缓存块清零
+  log_write(bp);              // 执行日志层写操作
+  brelse(bp);                 // 释放对 bp 的引用
 }
 
 // Blocks.
 
 // Allocate a zeroed disk block.
 static uint
-balloc(uint dev)
+balloc(uint dev)  // 主要功能是识别位图，找到可用盘块
 {
   int b, bi, m;
   struct buf *bp;
 
   bp = 0;
-  for(b = 0; b < sb.size; b += BPB){
-    bp = bread(dev, BBLOCK(b, sb));
+  for(b = 0; b < sb.size; b += BPB){  // 一次遍历 BPB 个位, 刚好是一个盘块
+    bp = bread(dev, BBLOCK(b, sb));   // 对位图的操作也是要经过缓存块
     for(bi = 0; bi < BPB && b + bi < sb.size; bi++){
-      m = 1 << (bi % 8);
+      m = 1 << (bi % 8);              // 取 bi 个盘块的对应位
       if((bp->data[bi/8] & m) == 0){  // Is block free?
-        bp->data[bi/8] |= m;  // Mark block in use.
-        log_write(bp);
-        brelse(bp);
-        bzero(dev, b + bi);
-        return b + bi;
+        bp->data[bi/8] |= m;          // Mark block in use.
+        log_write(bp);                // 更新位图
+        brelse(bp);                   // 解除对位图的引用 ref--
+        bzero(dev, b + bi);           // 对盘块清零，说明文件空白处都为 0
+        return b + bi;                // 返回盘块号
       }
     }
     brelse(bp);
@@ -79,20 +79,20 @@ balloc(uint dev)
 
 // Free a disk block.
 static void
-bfree(int dev, uint b)
+bfree(int dev, uint b)  // 简单地将位图的对应位置 0
 {
   struct buf *bp;
   int bi, m;
 
-  readsb(dev, &sb);
-  bp = bread(dev, BBLOCK(b, sb));
-  bi = b % BPB;
-  m = 1 << (bi % 8);
-  if((bp->data[bi/8] & m) == 0)
+  readsb(dev, &sb);     // 读取超级块
+  bp = bread(dev, BBLOCK(b, sb));  // 找到对应的位图，并载入缓存块
+  bi = b % BPB;                    // 盘块内偏移
+  m = 1 << (bi % 8);               // 字节内偏移
+  if((bp->data[bi/8] & m) == 0)    // 本来就是空盘块
     panic("freeing free block");
-  bp->data[bi/8] &= ~m;
-  log_write(bp);
-  brelse(bp);
+  bp->data[bi/8] &= ~m;            // 修改位图
+  log_write(bp);                   // 更新磁盘上的位图
+  brelse(bp);                      // 释放对 bp 的引用
 }
 
 // Inodes.

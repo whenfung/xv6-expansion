@@ -79,7 +79,7 @@ bget(uint dev, uint blockno)
   // Even if refcnt==0, B_DIRTY indicates a buffer is in use
   // because log.c has modified it but not yet committed it.
   for(b = bcache.head.prev; b != &bcache.head; b = b->prev){
-    if(b->refcnt == 0 && (b->flags & B_DIRTY) == 0) {  // 在缓存块链表中分配一个缓存块
+    if(b->refcnt == 0 && (b->flags & B_DIRTY) == 0) {  // 没有用且干净的缓存块
       b->dev = dev;
       b->blockno = blockno;
       b->flags = 0;
@@ -127,7 +127,7 @@ brelse(struct buf *b)
 
   acquire(&bcache.lock);   // 对缓存块链表加锁，相当于对所有缓存块加锁
   b->refcnt--;             // 缓存块的计数减 1
-  if (b->refcnt == 0) {    // 没有用的缓存块，将其放到链表前面
+  if (b->refcnt == 0) {    // 没有进程用的缓存块，将其放到链表前面，但是其数据还没有写入磁盘
     // no one is waiting for it.
     b->next->prev = b->prev;
     b->prev->next = b->next;
