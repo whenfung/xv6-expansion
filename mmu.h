@@ -87,8 +87,8 @@ struct segdesc {
 #define PTXSHIFT        12      // offset of PTX in a linear address
 #define PDXSHIFT        22      // offset of PDX in a linear address
 
-#define PGROUNDUP(sz)  (((sz)+PGSIZE-1) & ~(PGSIZE-1))
-#define PGROUNDDOWN(a) (((a)) & ~(PGSIZE-1))
+#define PGROUNDUP(sz)  (((sz)+PGSIZE-1) & ~(PGSIZE-1))   // 若低 12 位不为 0 进位后清除低 12 位，若低 12 位为 0 将不发生进位
+#define PGROUNDDOWN(a) (((a)) & ~(PGSIZE-1))             // 清除低 12 位
 
 // Page table/directory entry flags.
 #define PTE_P           0x001   // Present
@@ -97,11 +97,11 @@ struct segdesc {
 #define PTE_PS          0x080   // Page Size
 
 // Address in page table or page directory entry
-#define PTE_ADDR(pte)   ((uint)(pte) & ~0xFFF)
-#define PTE_FLAGS(pte)  ((uint)(pte) &  0xFFF)
+#define PTE_ADDR(pte)   ((uint)(pte) & ~0xFFF)        // 获取 31~22 位，作未页目录索引
+#define PTE_FLAGS(pte)  ((uint)(pte) &  0xFFF)        // 获取 21~12 位，作为页表索引
 
 #ifndef __ASSEMBLER__
-typedef uint pte_t;
+typedef uint pte_t;                                   // 页表项，记录物理页帧入口地址
 
 // Task state segment format
 struct taskstate {
