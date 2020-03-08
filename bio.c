@@ -68,7 +68,7 @@ bget(uint dev, uint blockno)
   // Is the block already cached?
   for(b = bcache.head.next; b != &bcache.head; b = b->next){
     if(b->dev == dev && b->blockno == blockno){  // 在缓存块链表中找到需要的盘块
-      b->refcnt++;
+      b->refcnt++;    // 之后要调用 brelse 使 refcnt --
       release(&bcache.lock);
       acquiresleep(&b->lock);
       return b;
