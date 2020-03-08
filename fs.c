@@ -515,7 +515,7 @@ writei(struct inode *ip, char *src, uint off, uint n)
 // Directories
 
 int
-namecmp(const char *s, const char *t)
+namecmp(const char *s, const char *t)  // 对比 s 和 t 是否相同
 {
   return strncmp(s, t, DIRSIZ);
 }
@@ -523,9 +523,9 @@ namecmp(const char *s, const char *t)
 // Look for a directory entry in a directory.
 // If found, set *poff to byte offset of entry.
 struct inode*
-dirlookup(struct inode *dp, char *name, uint *poff)
+dirlookup(struct inode *dp, char *name, uint *poff) 
 {
-  uint off, inum;
+  uint off, inum;    
   struct dirent de;
 
   if(dp->type != T_DIR)
@@ -627,18 +627,18 @@ namex(char *path, int nameiparent, char *name)
 {
   struct inode *ip, *next;
 
-  if(*path == '/')
-    ip = iget(ROOTDEV, ROOTINO);
-  else
-    ip = idup(myproc()->cwd);
+  if(*path == '/')                // 绝对路径
+    ip = iget(ROOTDEV, ROOTINO);  // 指向根目录索引节点
+  else                            // 相对路径
+    ip = idup(myproc()->cwd);     // 指向当前目录
 
-  while((path = skipelem(path, name)) != 0){
-    ilock(ip);
-    if(ip->type != T_DIR){
-      iunlockput(ip);
+  while((path = skipelem(path, name)) != 0){   // 解释路径中的每一部分
+    ilock(ip);                                 // 保证 ip->type 从磁盘中加载出来
+    if(ip->type != T_DIR){                     // ip 不是目录
+      iunlockput(ip);                          // 解锁并释放对 ip 的引用
       return 0;
     }
-    if(nameiparent && *path == '\0'){
+    if(nameiparent && *path == '\0'){          //
       // Stop one level early.
       iunlock(ip);
       return ip;
@@ -660,7 +660,7 @@ namex(char *path, int nameiparent, char *name)
 struct inode*
 namei(char *path)
 {
-  char name[DIRSIZ];
+  char name[DIRSIZ];  // 名字长度不可超过 DIRSIZ
   return namex(path, 0, name);
 }
 
