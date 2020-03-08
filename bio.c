@@ -4,7 +4,7 @@
 // cached copies of disk block contents.  Caching disk blocks
 // in memory reduces the number of disk reads and also provides
 // a synchronization point for disk blocks used by multiple processes.
-//
+//·
 // Interface:
 // * To get a buffer for a particular disk block, call bread.
 // * After changing buffer data, call bwrite to write it to disk.
@@ -28,12 +28,12 @@
 
 struct {
   struct spinlock lock;
-  struct buf buf[NBUF];
+  struct buf buf[NBUF];  // NBUF=30, 和 LOGSIZE 一样大
 
   // Linked list of all buffers, through prev/next.
   // head.next is most recently used.
-  struct buf head;
-} bcache;
+  struct buf head;  // buf 是盘块的缓存变量
+} bcache;  
 
 void
 binit(void)
@@ -44,7 +44,7 @@ binit(void)
 
 //PAGEBREAK!
   // Create linked list of buffers
-  bcache.head.prev = &bcache.head;
+  bcache.head.prev = &bcache.head;   // 这是缓存块双链表的初始化
   bcache.head.next = &bcache.head;
   for(b = bcache.buf; b < bcache.buf+NBUF; b++){
     b->next = bcache.head.next;
@@ -67,7 +67,7 @@ bget(uint dev, uint blockno)
 
   // Is the block already cached?
   for(b = bcache.head.next; b != &bcache.head; b = b->next){
-    if(b->dev == dev && b->blockno == blockno){
+    if(b->dev == dev && b->blockno == blockno){  // 在缓存块链表中找到需要的盘块
       b->refcnt++;
       release(&bcache.lock);
       acquiresleep(&b->lock);
@@ -79,7 +79,7 @@ bget(uint dev, uint blockno)
   // Even if refcnt==0, B_DIRTY indicates a buffer is in use
   // because log.c has modified it but not yet committed it.
   for(b = bcache.head.prev; b != &bcache.head; b = b->prev){
-    if(b->refcnt == 0 && (b->flags & B_DIRTY) == 0) {
+    if(b->refcnt == 0 && (b->flags & B_DIRTY) == 0) {  // 在缓存块链表中分配一个缓存块
       b->dev = dev;
       b->blockno = blockno;
       b->flags = 0;
@@ -94,12 +94,12 @@ bget(uint dev, uint blockno)
 
 // Return a locked buf with the contents of the indicated block.
 struct buf*
-bread(uint dev, uint blockno)
+bread(uint dev, uint blockno)  // 读取 (dev, blockno) 的内容
 {
   struct buf *b;
 
-  b = bget(dev, blockno);
-  if((b->flags & B_VALID) == 0) {
+  b = bget(dev, blockno);  // 找到对应的缓存块
+  if((b->flags & B_VALID) == 0) { // 如果缓存块是刚分配的，需要将数据从磁盘中加载进来
     iderw(b);
   }
   return b;
@@ -109,9 +109,9 @@ bread(uint dev, uint blockno)
 void
 bwrite(struct buf *b)
 {
-  if(!holdingsleep(&b->lock))
+  if(!holdingsleep(&b->lock)) // 缓存块的写操作必须加锁
     panic("bwrite");
-  b->flags |= B_DIRTY;
+  b->flags |= B_DIRTY;  // 脏位置一，iderw 根据此来进行写操作
   iderw(b);
 }
 
@@ -123,11 +123,11 @@ brelse(struct buf *b)
   if(!holdingsleep(&b->lock))
     panic("brelse");
 
-  releasesleep(&b->lock);
+  releasesleep(&b->lock);  // 释放缓存块的锁
 
-  acquire(&bcache.lock);
-  b->refcnt--;
-  if (b->refcnt == 0) {
+  acquire(&bcache.lock);   // 对缓存块链表加锁，相当于对所有缓存块加锁
+  b->refcnt--;             // 缓存块的计数减 1
+  if (b->refcnt == 0) {    // 没有用的缓存块，将其放到链表前面
     // no one is waiting for it.
     b->next->prev = b->prev;
     b->prev->next = b->next;
