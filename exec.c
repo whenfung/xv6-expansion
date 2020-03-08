@@ -21,7 +21,7 @@ exec(char *path, char **argv)
 
   begin_op();  // 调用文件系统调用时都要先调用 begin_op()
 
-  if((ip = namei(path)) == 0){  // 查找文件的索引节点是否存在 
+  if((ip = namei(path)) == 0){  // 打开二进制文件 
     end_op();
     cprintf("exec: fail\n");
     return -1;
@@ -49,11 +49,11 @@ exec(char *path, char **argv)
       goto bad;
     if(ph.vaddr + ph.memsz < ph.vaddr)
       goto bad;
-    if((sz = allocuvm(pgdir, sz, ph.vaddr + ph.memsz)) == 0)
+    if((sz = allocuvm(pgdir, sz, ph.vaddr + ph.memsz)) == 0)  // 为每个 ELF 段分配内存
       goto bad;
     if(ph.vaddr % PGSIZE != 0)
       goto bad;
-    if(loaduvm(pgdir, (char*)ph.vaddr, ip, ph.off, ph.filesz) < 0)
+    if(loaduvm(pgdir, (char*)ph.vaddr, ip, ph.off, ph.filesz) < 0) // 把段的内容载入内存中
       goto bad;
   }
   iunlockput(ip);  // 释放节点
@@ -63,7 +63,7 @@ exec(char *path, char **argv)
   // Allocate two pages at the next page boundary.
   // Make the first inaccessible.  Use the second as the user stack.
   sz = PGROUNDUP(sz);
-  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)  // 检查请求分配的虚拟地址是否是在 KERNBASE 之下
     goto bad;
   clearpteu(pgdir, (char*)(sz - 2*PGSIZE));   // 保护页
   sp = sz;
@@ -73,7 +73,7 @@ exec(char *path, char **argv)
     if(argc >= MAXARG)
       goto bad;
     sp = (sp - (strlen(argv[argc]) + 1)) & ~3;
-    if(copyout(pgdir, sp, argv[argc], strlen(argv[argc]) + 1) < 0)
+    if(copyout(pgdir, sp, argv[argc], strlen(argv[argc]) + 1) < 0)  // 拷贝字符串参数
       goto bad;
     ustack[3+argc] = sp;
   }
