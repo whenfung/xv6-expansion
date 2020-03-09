@@ -125,7 +125,7 @@ ideintr(void)   // IDE 中断处理
 
   // Start disk on next buf in queue.
   if(idequeue != 0)
-    idestart(idequeue);   // 递归处理队列里的盘块
+    idestart(idequeue);   // 启动磁盘
 
   release(&idelock);
 }
