@@ -52,12 +52,12 @@ ideinit(void)
 {
   int i;
 
-  initlock(&idelock, "ide");
-  ioapicenable(IRQ_IDE, ncpu - 1);
-  idewait(0);
+  initlock(&idelock, "ide");        // 磁盘使用需要加锁
+  ioapicenable(IRQ_IDE, ncpu - 1);  // 给最后一个 CPU 打开 IRQ_IDE 中断
+  idewait(0);                       // 等待磁盘接受命令
 
   // Check if disk 1 is present
-  outb(0x1f6, 0xe0 | (1<<4));
+  outb(0x1f6, 0xe0 | (1<<4));       // 
   for(i=0; i<1000; i++){
     if(inb(0x1f7) != 0){
       havedisk1 = 1;
