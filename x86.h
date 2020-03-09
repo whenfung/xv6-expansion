@@ -1,7 +1,7 @@
 // Routines to let C code use special x86 instructions.
 
 static inline uchar
-inb(ushort port)
+inb(ushort port)      // 从 IO 端口 port 读入一个字节
 {
   uchar data;
 
@@ -10,7 +10,7 @@ inb(ushort port)
 }
 
 static inline void
-insl(int port, void *addr, int cnt)
+insl(int port, void *addr, int cnt)  //
 {
   asm volatile("cld; rep insl" :
                "=D" (addr), "=c" (cnt) :
@@ -19,13 +19,13 @@ insl(int port, void *addr, int cnt)
 }
 
 static inline void
-outb(ushort port, uchar data)
+outb(ushort port, uchar data)  // 向 IO 端口 port 输出一个字符
 {
   asm volatile("out %0,%1" : : "a" (data), "d" (port));
 }
 
 static inline void
-outw(ushort port, ushort data)
+outw(ushort port, ushort data)  // 向 IO 端口 port 输出 2 个字节
 {
   asm volatile("out %0,%1" : : "a" (data), "d" (port));
 }
@@ -60,7 +60,7 @@ stosl(void *addr, int data, int cnt)
 struct segdesc;
 
 static inline void
-lgdt(struct segdesc *p, int size)
+lgdt(struct segdesc *p, int size)   // 设置 GDTR
 {
   volatile ushort pd[3];
 
@@ -74,7 +74,7 @@ lgdt(struct segdesc *p, int size)
 struct gatedesc;
 
 static inline void
-lidt(struct gatedesc *p, int size)
+lidt(struct gatedesc *p, int size)  // 设置 IDTR
 {
   volatile ushort pd[3];
 
@@ -86,13 +86,13 @@ lidt(struct gatedesc *p, int size)
 }
 
 static inline void
-ltr(ushort sel)
+ltr(ushort sel)           // 设置 TR 寄存器
 {
   asm volatile("ltr %0" : : "r" (sel));
 }
 
 static inline uint
-readeflags(void)
+readeflags(void)      // 取标志寄存器的值
 {
   uint eflags;
   asm volatile("pushfl; popl %0" : "=r" (eflags));
@@ -100,25 +100,25 @@ readeflags(void)
 }
 
 static inline void
-loadgs(ushort v)
+loadgs(ushort v)     // 设置附加段 GS 寄存器
 {
   asm volatile("movw %0, %%gs" : : "r" (v));
 }
 
 static inline void
-cli(void)
+cli(void)         // 关中断
 {
   asm volatile("cli");
 }
 
 static inline void
-sti(void)
+sti(void)        // 开中断
 {
   asm volatile("sti");
 }
 
 static inline uint
-xchg(volatile uint *addr, uint newval)
+xchg(volatile uint *addr, uint newval)   // 原子性交换操作
 {
   uint result;
 
@@ -131,7 +131,7 @@ xchg(volatile uint *addr, uint newval)
 }
 
 static inline uint
-rcr2(void)
+rcr2(void)         // 读 cr2 寄存器内的值
 {
   uint val;
   asm volatile("movl %%cr2,%0" : "=r" (val));
@@ -139,7 +139,7 @@ rcr2(void)
 }
 
 static inline void
-lcr3(uint val)
+lcr3(uint val)    // 设置页表寄存器
 {
   asm volatile("movl %0,%%cr3" : : "r" (val));
 }
@@ -147,7 +147,7 @@ lcr3(uint val)
 //PAGEBREAK: 36
 // Layout of the trap frame built on the stack by the
 // hardware and by trapasm.S, and passed to trap().
-struct trapframe {
+struct trapframe {                           // 栈帧结构 
   // registers as pushed by pusha
   uint edi;
   uint esi;
