@@ -1,7 +1,7 @@
 // Routines to let C code use special x86 instructions.
 
 static inline uchar
-inb(ushort port)
+inb(ushort port)   // 从 IO 端口 port 读入 1 字节
 {
   uchar data;
 
@@ -19,13 +19,13 @@ insl(int port, void *addr, int cnt)
 }
 
 static inline void
-outb(ushort port, uchar data)
+outb(ushort port, uchar data) // 向 IO 端口 port 写入 1 字节
 {
   asm volatile("out %0,%1" : : "a" (data), "d" (port));
 }
 
 static inline void
-outw(ushort port, ushort data)
+outw(ushort port, ushort data)  // 向 IO 端口 port 写入 2 字节
 {
   asm volatile("out %0,%1" : : "a" (data), "d" (port));
 }
@@ -60,7 +60,7 @@ stosl(void *addr, int data, int cnt)
 struct segdesc;
 
 static inline void
-lgdt(struct segdesc *p, int size)
+lgdt(struct segdesc *p, int size)  // 设置 GDTR
 {
   volatile ushort pd[3];
 
@@ -74,7 +74,7 @@ lgdt(struct segdesc *p, int size)
 struct gatedesc;
 
 static inline void
-lidt(struct gatedesc *p, int size)
+lidt(struct gatedesc *p, int size)  // 设置 IDTR
 {
   volatile ushort pd[3];
 
@@ -86,13 +86,13 @@ lidt(struct gatedesc *p, int size)
 }
 
 static inline void
-ltr(ushort sel)
+ltr(ushort sel)     // 设置 TR 寄存器
 {
   asm volatile("ltr %0" : : "r" (sel));
 }
 
 static inline uint
-readeflags(void)
+readeflags(void)    // 读取 EFLAGS
 {
   uint eflags;
   asm volatile("pushfl; popl %0" : "=r" (eflags));
@@ -100,25 +100,25 @@ readeflags(void)
 }
 
 static inline void
-loadgs(ushort v)
+loadgs(ushort v)    // 设置 GS 寄存器
 {
   asm volatile("movw %0, %%gs" : : "r" (v));
 }
 
 static inline void
-cli(void)
+cli(void)   // 关中断
 {
   asm volatile("cli");
 }
 
 static inline void
-sti(void)
+sti(void)    // 开中断
 {
   asm volatile("sti");
 }
 
 static inline uint
-xchg(volatile uint *addr, uint newval)
+xchg(volatile uint *addr, uint newval)   // 原子性交换
 {
   uint result;
 
@@ -131,7 +131,7 @@ xchg(volatile uint *addr, uint newval)
 }
 
 static inline uint
-rcr2(void)
+rcr2(void)    // 读取 cr2
 {
   uint val;
   asm volatile("movl %%cr2,%0" : "=r" (val));
@@ -139,7 +139,7 @@ rcr2(void)
 }
 
 static inline void
-lcr3(uint val)
+lcr3(uint val)    // 设置 cr3
 {
   asm volatile("movl %0,%%cr3" : : "r" (val));
 }
