@@ -13,7 +13,7 @@
 struct devsw devsw[NDEV];
 struct {
   struct spinlock lock;
-  struct file file[NFILE];
+  struct file file[NFILE];  // NFILE = 100
 } ftable;
 
 void
@@ -24,14 +24,14 @@ fileinit(void)
 
 // Allocate a file structure.
 struct file*
-filealloc(void)
+filealloc(void) // 创建一个文件结构
 {
   struct file *f;
 
   acquire(&ftable.lock);
   for(f = ftable.file; f < ftable.file + NFILE; f++){
-    if(f->ref == 0){
-      f->ref = 1;
+    if(f->ref == 0){  // 找到无进程使用的文件结构
+      f->ref = 1;    
       release(&ftable.lock);
       return f;
     }
@@ -42,7 +42,7 @@ filealloc(void)
 
 // Increment ref count for file f.
 struct file*
-filedup(struct file *f)
+filedup(struct file *f)  // ref ++
 {
   acquire(&ftable.lock);
   if(f->ref < 1)
@@ -54,7 +54,7 @@ filedup(struct file *f)
 
 // Close file f.  (Decrement ref count, close when reaches 0.)
 void
-fileclose(struct file *f)
+fileclose(struct file *f)  // ref--
 {
   struct file ff;
 
@@ -81,7 +81,7 @@ fileclose(struct file *f)
 
 // Get metadata about file f.
 int
-filestat(struct file *f, struct stat *st)
+filestat(struct file *f, struct stat *st)  // 获取文件信息
 {
   if(f->type == FD_INODE){
     ilock(f->ip);
@@ -100,9 +100,9 @@ fileread(struct file *f, char *addr, int n)
 
   if(f->readable == 0)
     return -1;
-  if(f->type == FD_PIPE)
+  if(f->type == FD_PIPE)    // 管道类型
     return piperead(f->pipe, addr, n);
-  if(f->type == FD_INODE){
+  if(f->type == FD_INODE){  // 文件类型，目录也是文件
     ilock(f->ip);
     if((r = readi(f->ip, addr, f->off, n)) > 0)
       f->off += r;
@@ -121,9 +121,9 @@ filewrite(struct file *f, char *addr, int n)
 
   if(f->writable == 0)
     return -1;
-  if(f->type == FD_PIPE)
+  if(f->type == FD_PIPE)  // 管道类型
     return pipewrite(f->pipe, addr, n);
-  if(f->type == FD_INODE){
+  if(f->type == FD_INODE){  // 文件类型
     // write a few blocks at a time to avoid exceeding
     // the maximum log transaction size, including
     // i-node, indirect block, allocation blocks,

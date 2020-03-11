@@ -1,11 +1,11 @@
 struct file {
-  enum { FD_NONE, FD_PIPE, FD_INODE } type;
+  enum { FD_NONE, FD_PIPE, FD_INODE } type; // 文件类型
   int ref; // reference count
-  char readable;
-  char writable;
-  struct pipe *pipe;
-  struct inode *ip;
-  uint off;
+  char readable;         // 读权限
+  char writable;         // 写权限
+  struct pipe *pipe;     // 管道地址
+  struct inode *ip;      // 索引节点地址
+  uint off;              // 文件偏移
 };
 
 

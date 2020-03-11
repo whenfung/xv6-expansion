@@ -291,45 +291,45 @@ sys_open(void)
   struct file *f;
   struct inode *ip;
 
-  if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
+  if(argstr(0, &path) < 0 || argint(1, &omode) < 0) // 获取文件名和打开模式
     return -1;
 
-  begin_op();
+  begin_op();     // 文件系统调用都要执行此函数
 
-  if(omode & O_CREATE){
-    ip = create(path, T_FILE, 0, 0);
-    if(ip == 0){
-      end_op();
+  if(omode & O_CREATE){       // 创建文件模式
+    ip = create(path, T_FILE, 0, 0);  // 调用 create 函数
+    if(ip == 0){        // 创建失败 
+      end_op();         // 结束系统调用
+      return -1;        // 返回 -1
+    }
+  } else {              // 非创建文件模式
+    if((ip = namei(path)) == 0){  // 无相应文件路径
+      end_op(); 
       return -1;
     }
-  } else {
-    if((ip = namei(path)) == 0){
-      end_op();
-      return -1;
-    }
-    ilock(ip);
-    if(ip->type == T_DIR && omode != O_RDONLY){
-      iunlockput(ip);
+    ilock(ip);     // 操作索引节点之前都要调用 ilock
+    if(ip->type == T_DIR && omode != O_RDONLY){ // 目录
+      iunlockput(ip);  // 解锁并更新对应目录索引节点
       end_op();
       return -1;
     }
   }
 
   if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
-    if(f)
+    if(f)  // 创建文件结构失败
       fileclose(f);
     iunlockput(ip);
     end_op();
     return -1;
   }
   iunlock(ip);
-  end_op();
+  end_op();  // 结束对索引节点层以下的使用
 
-  f->type = FD_INODE;
-  f->ip = ip;
-  f->off = 0;
-  f->readable = !(omode & O_WRONLY);
-  f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+  f->type = FD_INODE;   // 类型
+  f->ip = ip;           // 节点
+  f->off = 0;           // 文件偏移
+  f->readable = !(omode & O_WRONLY);  // 读权限设置
+  f->writable = (omode & O_WRONLY) || (omode & O_RDWR); // 写权限设置
   return fd;
 }
 
