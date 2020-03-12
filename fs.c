@@ -225,14 +225,14 @@ iupdate(struct inode *ip)   // 更新磁盘上的索引节点
   struct dinode *dip;
 
   bp = bread(ip->dev, IBLOCK(ip->inum, sb));      // 读取对应位图
-  dip = (struct dinode*)bp->data + ip->inum%IPB;  // 定位对应索引节点
+  dip = (struct dinode*)bp->data + ip->inum%IPB;  // 定位磁盘索引节点
   dip->type = ip->type;
   dip->major = ip->major;
   dip->minor = ip->minor;
   dip->nlink = ip->nlink;
   dip->size = ip->size;
   memmove(dip->addrs, ip->addrs, sizeof(ip->addrs));  // 拷贝回缓存块
-  log_write(bp);                                      // 写回磁盘
+  log_write(bp);                                      // 更新位图
   brelse(bp);                                         // 释放对缓存块的引用
 }
 

@@ -192,8 +192,8 @@ sys_unlink(void)
   if(argstr(0, &path) < 0)
     return -1;
 
-  begin_op();
-  if((dp = nameiparent(path, name)) == 0){
+  begin_op();  // 文件系统调用必加
+  if((dp = nameiparent(path, name)) == 0){ // 寻找文件名所在目录 
     end_op();
     return -1;
   }
@@ -204,27 +204,27 @@ sys_unlink(void)
   if(namecmp(name, ".") == 0 || namecmp(name, "..") == 0)
     goto bad;
 
-  if((ip = dirlookup(dp, name, &off)) == 0)
+  if((ip = dirlookup(dp, name, &off)) == 0)  // 目录下查找对应文件
     goto bad;
   ilock(ip);
 
   if(ip->nlink < 1)
     panic("unlink: nlink < 1");
-  if(ip->type == T_DIR && !isdirempty(ip)){
+  if(ip->type == T_DIR && !isdirempty(ip)){  // 非空目录不可删
     iunlockput(ip);
     goto bad;
   }
 
   memset(&de, 0, sizeof(de));
-  if(writei(dp, (char*)&de, off, sizeof(de)) != sizeof(de))
+  if(writei(dp, (char*)&de, off, sizeof(de)) != sizeof(de))  // 更新目录
     panic("unlink: writei");
-  if(ip->type == T_DIR){
-    dp->nlink--;
+  if(ip->type == T_DIR){  
+    dp->nlink--;    // 更新目录索引节点
     iupdate(dp);
   }
   iunlockput(dp);
 
-  ip->nlink--;
+  ip->nlink--;      // 更新文件索引节点
   iupdate(ip);
   iunlockput(ip);
 
