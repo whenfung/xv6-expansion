@@ -415,11 +415,11 @@ itrunc(struct inode *ip)
   for(i = 0; i < NDIRECT; i++){ 
     if(ip->addrs[i]){
       bfree(ip->dev, ip->addrs[i]);  // 通过位图的置位删除数据盘块，其实数据还在
-      ip->addrs[i] = 0;              // 解绑
+      ip->addrs[i] = 0;     // 这会导致索引信息丢失，无法恢复文件
     }
   }
 
-  if(ip->addrs[NDIRECT]){        // 处理间接索引上的盘块，大文件才有间接索引
+  if(ip->addrs[NDIRECT]){   // 处理间接索引上的盘块，大文件才有间接索引
     bp = bread(ip->dev, ip->addrs[NDIRECT]);
     a = (uint*)bp->data;
     for(j = 0; j < NINDIRECT; j++){
