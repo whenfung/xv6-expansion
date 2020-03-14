@@ -445,12 +445,21 @@ sys_pipe(void)
 }
 
 int 
-sys_readd()
+sys_swapout()
 {
   uint addr;
-  if(argint(0,(int*) &addr) < 0)
+  if(argint(0, (int*)&addr) < 0)
     return -1;
   cprintf("addr: %p\n", (char*)addr);
-  readraw(2, (char*)addr);  
+  return 0;
+}
+
+int 
+sys_swapin()
+{
+  uint addr;
+  if(argint(0, (int*)&addr) < 0)
+    return -1;
+  cprintf("addr: %p\n", (char*)addr);
   return 0;
 }

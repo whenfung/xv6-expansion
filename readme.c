@@ -1,32 +1,21 @@
 #include "types.h"  // XV6 定义的数据类型 
 #include "stat.h"   // 文件信息结构体
 #include "user.h"   // 用户可用的函数和系统调用
-#include "fcntl.h"  // 打开文件的方式
-
-char buf[512] = "hello world!";
-
-void readme() {
-  int fd = open("README.md", O_RDONLY);   // fd >= 0 表示创建成功
-
-  struct stat st;
-  fstat(fd, &st);       // 读取文件信息 
-  printf(1, "dev: %d\n", st.dev);
-  printf(1, "ino: %d\n", st.ino);
-  printf(1, "nlink: %d\n", st.nlink);
-  printf(1, "type: %d\n", st.type);
-  printf(1, "size: %d\n", st.size);
-
-  read(fd, buf, 2000);
-  printf(1, "content is below:\n%s", buf);
-  close(fd);
-}
 
 int
 main()
-{ 
-  // readme();
-  
-  printf(1, "addr: %p\n", buf);
-  readd(buf);
+{
+  char* buf1 = (char*)malloc(4096);
+  char* buf2 = (char*)malloc(4096);
+  printf(1, "buf1: %p\n", buf1);
+  printf(1, "buf2: %p\n", buf2);
+
+  for(int i = 0; i < 26; i ++)
+    buf1[i] = 'a' + i;
+  buf1[26] = '\0';
+  printf(1, "%s\n", buf1);
+
+  swapout(buf1);  // 将 buf1 的数据写到 rawdisk 的前 8 个盘块
+  swapin(buf2);   // 将 rawdisk 的前 8 个盘块数据读回 buf2
   exit();
 }
