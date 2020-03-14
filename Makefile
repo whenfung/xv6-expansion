@@ -92,7 +92,7 @@ endif
 
 rawdisk.img: README.md  
 	dd if=/dev/zero of=rawdisk.img bs=512 count=8000
-	dd if=README.md of=rawdisk.img
+	dd if=README.md of=rawdisk.img conv=notrunc
 
 xv6.img: bootblock kernel
 	dd if=/dev/zero of=xv6.img count=10000
