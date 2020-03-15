@@ -20,15 +20,15 @@
 // Disk layout:
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
 
-int nbitmap = FSSIZE/(BSIZE*8) + 1;
-int ninodeblocks = NINODES / IPB + 1;
-int nlog = LOGSIZE;
+int nbitmap = FSSIZE/(BSIZE*8) + 1;    // 位图需要的盘块数
+int ninodeblocks = NINODES / IPB + 1;  // 索引节点需要的盘块数
+int nlog = LOGSIZE;                    // 日志需要的盘块数, 默认 30
 int nmeta;    // Number of meta blocks (boot, sb, nlog, inode, bitmap)
 int nblocks;  // Number of data blocks
 
 int fsfd;
-struct superblock sb;
-char zeroes[BSIZE];
+struct superblock sb;      // 超级块
+char zeroes[BSIZE];        // 盘块大小, 内容全 0 的数组
 uint freeinode = 1;
 uint freeblock;
 
@@ -43,7 +43,7 @@ void iappend(uint inum, void *p, int n);
 
 // convert to intel byte order
 ushort
-xshort(ushort x)
+xshort(ushort x)  // 涉及到大端和小端的知识
 {
   ushort y;
   uchar *a = (uchar*)&y;
@@ -53,7 +53,7 @@ xshort(ushort x)
 }
 
 uint
-xint(uint x)
+xint(uint x)  // 涉及到大端和小端的知识
 {
   uint y;
   uchar *a = (uchar*)&y;
@@ -91,16 +91,16 @@ main(int argc, char *argv[])
   }
 
   // 1 fs block = 1 disk sector
-  nmeta = 2 + nlog + ninodeblocks + nbitmap;
-  nblocks = FSSIZE - nmeta;
+  nmeta = 2 + nlog + ninodeblocks + nbitmap; // 元数据区
+  nblocks = FSSIZE - nmeta;                  // 数据区
 
-  sb.size = xint(FSSIZE);
-  sb.nblocks = xint(nblocks);
-  sb.ninodes = xint(NINODES);
-  sb.nlog = xint(nlog);
-  sb.logstart = xint(2);
-  sb.inodestart = xint(2+nlog);
-  sb.bmapstart = xint(2+nlog+ninodeblocks);
+  sb.size = xint(FSSIZE);          // 文件系统大小
+  sb.nblocks = xint(nblocks);      // 数据盘块个数
+  sb.ninodes = xint(NINODES);      // 索引节点个数
+  sb.nlog = xint(nlog);            // 日志所需盘块个数
+  sb.logstart = xint(2);           // 日志区起点
+  sb.inodestart = xint(2+nlog);    // 索引节点区起点
+  sb.bmapstart = xint(2+nlog+ninodeblocks); // 位图起点
 
   printf("nmeta %d (boot, super, log blocks %u inode blocks %u, bitmap blocks %u) blocks %d total %d\n",
          nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
