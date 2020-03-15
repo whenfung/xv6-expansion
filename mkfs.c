@@ -117,10 +117,10 @@ main(int argc, char *argv[])
   rootino = ialloc(T_DIR);      // T_DIR 为 1
   assert(rootino == ROOTINO);   // 根目录的索引节点为 ROOTINO=1
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, ".");
-  iappend(rootino, &de, sizeof(de));
+  bzero(&de, sizeof(de));       // 目录结构体清零
+  de.inum = xshort(rootino);    // 目录对应的索引节点
+  strcpy(de.name, ".");         // 根目录初始化时只有自己 .
+  iappend(rootino, &de, sizeof(de)); // 添加根目录文件 
 
   bzero(&de, sizeof(de));
   de.inum = xshort(rootino);
@@ -253,7 +253,7 @@ balloc(int used)
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void
-iappend(uint inum, void *xp, int n)
+iappend(uint inum, void *xp, int n) // 给 inum 代表的文件添加数据
 {
   char *p = (char*)xp;
   uint fbn, off, n1;
@@ -262,36 +262,36 @@ iappend(uint inum, void *xp, int n)
   uint indirect[NINDIRECT];
   uint x;
 
-  rinode(inum, &din);
-  off = xint(din.size);
+  rinode(inum, &din);    // 根据 inum 读取磁盘索引节点信息
+  off = xint(din.size);  // 读取文件大小, 数据将在后面添加
   // printf("append inum %d at off %d sz %d\n", inum, off, n);
-  while(n > 0){
-    fbn = off / BSIZE;
-    assert(fbn < MAXFILE);
-    if(fbn < NDIRECT){
-      if(xint(din.addrs[fbn]) == 0){
-        din.addrs[fbn] = xint(freeblock++);
+  while(n > 0){              // 数据未添加完
+    fbn = off / BSIZE;       // 找到文件的最后一个盘块
+    assert(fbn < MAXFILE);   // 文件大小不可超过 MAXFILE
+    if(fbn < NDIRECT){       // 直接索引
+      if(xint(din.addrs[fbn]) == 0){ // 未有映射
+        din.addrs[fbn] = xint(freeblock++); // 添加映射
       }
-      x = xint(din.addrs[fbn]);
-    } else {
-      if(xint(din.addrs[NDIRECT]) == 0){
-        din.addrs[NDIRECT] = xint(freeblock++);
+      x = xint(din.addrs[fbn]);     // 记录映射盘块号
+    } else {                        // 间接索引 
+      if(xint(din.addrs[NDIRECT]) == 0){  // 未有映射
+        din.addrs[NDIRECT] = xint(freeblock++);  // 添加映射
       }
-      rsect(xint(din.addrs[NDIRECT]), (char*)indirect);
-      if(indirect[fbn - NDIRECT] == 0){
-        indirect[fbn - NDIRECT] = xint(freeblock++);
-        wsect(xint(din.addrs[NDIRECT]), (char*)indirect);
+      rsect(xint(din.addrs[NDIRECT]), (char*)indirect); // 读取索引盘块
+      if(indirect[fbn - NDIRECT] == 0){                 // 未有映射
+        indirect[fbn - NDIRECT] = xint(freeblock++);    // 添加映射
+        wsect(xint(din.addrs[NDIRECT]), (char*)indirect); // 更新索引盘块
       }
-      x = xint(indirect[fbn-NDIRECT]);
+      x = xint(indirect[fbn-NDIRECT]); // 记录新增的盘块号
     }
-    n1 = min(n, (fbn + 1) * BSIZE - off);
-    rsect(x, buf);
-    bcopy(p, buf + off - (fbn * BSIZE), n1);
-    wsect(x, buf);
-    n -= n1;
-    off += n1;
+    n1 = min(n, (fbn + 1) * BSIZE - off);  // 计算已写数据大小
+    rsect(x, buf);       // 读取 x 对应的盘块
+    bcopy(p, buf + off - (fbn * BSIZE), n1); // 填充 buf
+    wsect(x, buf);   // 更新 x 对应的盘块
+    n -= n1;         // 为下一轮循环做准备
+    off += n1;  
     p += n1;
   }
-  din.size = xint(off);
-  winode(inum, &din);
+  din.size = xint(off);  // 更新文件大小
+  winode(inum, &din);    // 更新对应盘块
 }
