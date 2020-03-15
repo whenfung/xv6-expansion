@@ -29,7 +29,7 @@ int nblocks;  // Number of data blocks
 int fsfd;
 struct superblock sb;      // 超级块
 char zeroes[BSIZE];        // 盘块大小, 内容全 0 的数组
-uint freeinode = 1;
+uint freeinode = 1;        // 空闲索引节点从 1 开始
 uint freeblock;
 
 
@@ -81,7 +81,7 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  assert((BSIZE % sizeof(struct dinode)) == 0);
+  assert((BSIZE % sizeof(struct dinode)) == 0); // assert 为真，继续运行
   assert((BSIZE % sizeof(struct dirent)) == 0);
 
   fsfd = open(argv[1], O_RDWR|O_CREAT|O_TRUNC, 0666);
@@ -107,15 +107,15 @@ main(int argc, char *argv[])
 
   freeblock = nmeta;     // the first free block that we can allocate
 
-  for(i = 0; i < FSSIZE; i++)
+  for(i = 0; i < FSSIZE; i++)   // 所有盘块清零
     wsect(i, zeroes);
 
-  memset(buf, 0, sizeof(buf));
+  memset(buf, 0, sizeof(buf));   // 设置超级块
   memmove(buf, &sb, sizeof(sb));
   wsect(1, buf);
 
-  rootino = ialloc(T_DIR);
-  assert(rootino == ROOTINO);
+  rootino = ialloc(T_DIR);      // T_DIR 为 1
+  assert(rootino == ROOTINO);   // 根目录的索引节点为 ROOTINO=1
 
   bzero(&de, sizeof(de));
   de.inum = xshort(rootino);
@@ -168,7 +168,7 @@ main(int argc, char *argv[])
 }
 
 void
-wsect(uint sec, void *buf)
+wsect(uint sec, void *buf) // 将 buf 的数据写入 sec
 {
   if(lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE){
     perror("lseek");
@@ -181,17 +181,17 @@ wsect(uint sec, void *buf)
 }
 
 void
-winode(uint inum, struct dinode *ip)
+winode(uint inum, struct dinode *ip) // 根据 inum 将 ip 写入磁盘
 {
-  char buf[BSIZE];
-  uint bn;
-  struct dinode *dip;
+  char buf[BSIZE];        // 盘块大小的缓存块
+  uint bn;                // 盘块号
+  struct dinode *dip;     // 磁盘索引节点指针
 
-  bn = IBLOCK(inum, sb);
-  rsect(bn, buf);
-  dip = ((struct dinode*)buf) + (inum % IPB);
-  *dip = *ip;
-  wsect(bn, buf);
+  bn = IBLOCK(inum, sb);  // 索引节点 inum 所在的盘块号
+  rsect(bn, buf);         // 将第 bn 个盘块的数据读到 buf 中
+  dip = ((struct dinode*)buf) + (inum % IPB); // inum 在 buf 中的偏移 
+  *dip = *ip;             // 更新磁盘索引节点
+  wsect(bn, buf);         // 将缓存块 buf 写到第 bn 个盘块中
 }
 
 void
@@ -208,7 +208,7 @@ rinode(uint inum, struct dinode *ip)
 }
 
 void
-rsect(uint sec, void *buf)
+rsect(uint sec, void *buf)  // 读盘块 sec 到 buf 中
 {
   if(lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE){
     perror("lseek");
@@ -223,14 +223,14 @@ rsect(uint sec, void *buf)
 uint
 ialloc(ushort type)
 {
-  uint inum = freeinode++;
-  struct dinode din;
+  uint inum = freeinode++;   // freeinode 初始化为 1
+  struct dinode din;         // 磁盘索引节点
 
-  bzero(&din, sizeof(din));
-  din.type = xshort(type);
-  din.nlink = xshort(1);
-  din.size = xint(0);
-  winode(inum, &din);
+  bzero(&din, sizeof(din));  // 清零
+  din.type = xshort(type);   // 索引节点类型
+  din.nlink = xshort(1);     // 文件硬链接数
+  din.size = xint(0);        // 文件大小, 一开始为 0
+  winode(inum, &din);        // 根据 inum 将 din 写到磁盘对应的位置
   return inum;
 }
 
