@@ -461,5 +461,6 @@ sys_swapin()
   if(argint(0, (int*)&addr) < 0)
     return -1;
   cprintf("addr: %p\n", (char*)addr);
+  rawread(2, (char*)addr);
   return 0;
 }

@@ -29,15 +29,16 @@ struct superblock sb;
 
 // Read the first block of rawdisk
 void
-readraw(int dev, char* fb) {
+rawread(int dev, char* buf) {
   cprintf("dev: %d\n", dev);
-  cprintf("%s\n", fb);  
+  cprintf("%s\n", buf);  
+ 
   struct buf *bp = bread(2, 0);
-  memmove(fb, bp->data, 512);
-  for(int i = 0; i < 10; i++)
-    cprintf("%c", fb[i]);
-  cprintf("\n");
+  memmove(buf, bp->data, 512);
   brelse(bp); 
+
+  buf[20] = '\0';
+  cprintf("%s\n", buf);
 }
 
 // Read the super block.

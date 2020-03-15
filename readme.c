@@ -10,8 +10,10 @@ main()
   printf(1, "buf1: %p\n", buf1);
   printf(1, "buf2: %p\n", buf2);
 
-  for(int i = 0; i < 26; i ++)
+  for(int i = 0; i < 26; i ++) {
     buf1[i] = 'a' + i;
+    buf2[i] = 'z' - i;
+  }
   buf1[26] = '\0';
   printf(1, "%s\n", buf1);
 
