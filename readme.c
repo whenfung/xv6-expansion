@@ -15,9 +15,12 @@ main()
     buf2[i] = 'z' - i;
   }
   buf1[26] = '\0';
-  printf(1, "%s\n", buf1);
+  printf(1, "buf1: %s\n", buf1);
 
   swapout(buf1);  // 将 buf1 的数据写到 rawdisk 的前 8 个盘块
   swapin(buf2);   // 将 rawdisk 的前 8 个盘块数据读回 buf2
+  
+  printf(1, "buf2: %s\n", buf2);
+
   exit();
 }

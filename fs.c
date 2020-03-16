@@ -30,15 +30,9 @@ struct superblock sb;
 // Read the first block of rawdisk
 void
 rawread(int dev, char* buf) {
-  cprintf("dev: %d\n", dev);
-  cprintf("%s\n", buf);  
- 
-  struct buf *bp = bread(1, 1000);
+  struct buf *bp = bread(dev, 1000);
   memmove(buf, bp->data, 512);
   brelse(bp); 
-
-  buf[20] = '\0';
-  cprintf("%s\n", buf);
 }
 
 // Read the super block.
@@ -60,6 +54,15 @@ bzero(int dev, int bno)
   bp = bread(dev, bno);
   memset(bp->data, 0, BSIZE);
   log_write(bp);
+  brelse(bp);
+}
+
+void 
+rawwrite(int dev, char* buf)
+{
+  struct buf *bp = bread(dev, 0);
+  memmove(bp->data, buf, BSIZE);
+  bwrite(bp);
   brelse(bp);
 }
 
