@@ -119,18 +119,18 @@ main(int argc, char *argv[])
 
   bzero(&de, sizeof(de));       // 目录结构体清零
   de.inum = xshort(rootino);    // 目录对应的索引节点
-  strcpy(de.name, ".");         // 根目录初始化时只有自己 .
+  strcpy(de.name, ".");         // 根目录添加 . 文件
   iappend(rootino, &de, sizeof(de)); // 添加根目录文件 
 
   bzero(&de, sizeof(de));
   de.inum = xshort(rootino);
-  strcpy(de.name, "..");
+  strcpy(de.name, "..");        // 根目录添加 .. 文件
   iappend(rootino, &de, sizeof(de));
 
-  for(i = 2; i < argc; i++){
-    assert(index(argv[i], '/') == 0);
+  for(i = 2; i < argc; i++){    // 处理参数 
+    assert(index(argv[i], '/') == 0);  // 不可出现 / 符
 
-    if((fd = open(argv[i], 0)) < 0){
+    if((fd = open(argv[i], 0)) < 0){   // 打开参数对应的文件
       perror(argv[i]);
       exit(1);
     }
@@ -142,25 +142,25 @@ main(int argc, char *argv[])
     if(argv[i][0] == '_')
       ++argv[i];
 
-    inum = ialloc(T_FILE);
+    inum = ialloc(T_FILE);    // 分配索引节点
 
-    bzero(&de, sizeof(de));
-    de.inum = xshort(inum);
-    strncpy(de.name, argv[i], DIRSIZ);
-    iappend(rootino, &de, sizeof(de));
+    bzero(&de, sizeof(de));   // 对 de 清零
+    de.inum = xshort(inum);   // 索引节点号
+    strncpy(de.name, argv[i], DIRSIZ);  // 名字
+    iappend(rootino, &de, sizeof(de));  // 新增的文件添加到根目录
 
-    while((cc = read(fd, buf, sizeof(buf))) > 0)
-      iappend(inum, buf, cc);
+    while((cc = read(fd, buf, sizeof(buf))) > 0) 
+      iappend(inum, buf, cc);  // 拷贝数据到文件系统
 
     close(fd);
   }
 
   // fix size of root inode dir
-  rinode(rootino, &din);
-  off = xint(din.size);
-  off = ((off/BSIZE) + 1) * BSIZE;
+  rinode(rootino, &din);   // 读取根目录索引节点
+  off = xint(din.size);               // 旧偏移
+  off = ((off/BSIZE) + 1) * BSIZE;    // 新偏移
   din.size = xint(off);
-  winode(rootino, &din);
+  winode(rootino, &din);   // 更新磁盘上根目录索引节点
 
   balloc(freeblock);
 
@@ -235,7 +235,7 @@ ialloc(ushort type)
 }
 
 void
-balloc(int used)
+balloc(int used)  // 初始化位图
 {
   uchar buf[BSIZE];
   int i;
