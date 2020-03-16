@@ -189,6 +189,7 @@ UPROGS=\
 
 fs.img: mkfs README.md $(UPROGS)
 	./mkfs fs.img README.md $(UPROGS)
+	dd if=README.md of=fs.img seek=1000 conv=notrunc
 
 -include *.d
 

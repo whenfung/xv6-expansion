@@ -33,7 +33,7 @@ rawread(int dev, char* buf) {
   cprintf("dev: %d\n", dev);
   cprintf("%s\n", buf);  
  
-  struct buf *bp = bread(2, 0);
+  struct buf *bp = bread(1, 1000);
   memmove(buf, bp->data, 512);
   brelse(bp); 
 
