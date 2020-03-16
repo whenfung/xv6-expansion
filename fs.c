@@ -27,6 +27,11 @@ static void itrunc(struct inode*);
 // only one device
 struct superblock sb; 
 
+struct {
+  struct spinlock lock;
+  char bmap[125];
+} sf;
+
 // Read the first block of rawdisk
 void
 rawread(int dev, char* buf) {
@@ -193,6 +198,11 @@ iinit(int dev)
   initlock(&icache.lock, "icache");
   for(i = 0; i < NINODE; i++) {
     initsleeplock(&icache.inode[i].lock, "inode");
+  }
+
+  initlock(&sf.lock, "swapfile");
+  for(int i = 0; i < 125; i ++) {
+    sf.bmap[i] = 0;
   }
 
   readsb(dev, &sb);
