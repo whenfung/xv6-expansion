@@ -5,22 +5,18 @@
 int
 main()
 {
-  char* buf1 = (char*)malloc(4096);
-  char* buf2 = (char*)malloc(4096);
-  printf(1, "buf1: %p\n", buf1);
-  printf(1, "buf2: %p\n", buf2);
+  char* str1 = (char*)malloc(4096);
+  char* str2 = (char*)malloc(4096);
 
-  for(int i = 0; i < 26; i ++) {
-    buf1[i] = 'a' + i;
-    buf2[i] = 'z' - i;
-  }
-  buf1[26] = '\0';
-  printf(1, "buf1: %s\n", buf1);
+  for(int i = 0; i < 26; i ++) 
+    str1[i] = 'a' + i;
+  str1[26] = '\0';
+  printf(1, "str1: %s\n", str1);
 
-  swapout(buf1);  // 将 buf1 的数据写到 rawdisk 的前 8 个盘块
-  swapin(buf2);   // 将 rawdisk 的前 8 个盘块数据读回 buf2
+  swapout(str1);  
+  swapin(str2);   
   
-  printf(1, "buf2: %s\n", buf2);
+  printf(1, "str2: %s\n", str2);
 
   exit();
 }

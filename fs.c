@@ -65,7 +65,7 @@ bzero(int dev, int bno)
 void 
 rawwrite(int dev, char* buf)
 {
-  struct buf *bp = bread(dev, 0);
+  struct buf *bp = bread(dev, 1000);
   memmove(bp->data, buf, BSIZE);
   bwrite(bp);
   brelse(bp);
