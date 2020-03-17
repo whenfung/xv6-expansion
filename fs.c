@@ -34,10 +34,10 @@ struct {
 
 // Read the first block of rawdisk
 void
-rawread(int dev, char* buf) {
-  struct buf *bp = bread(dev, 1000);
-  memmove(buf, bp->data, 512);
-  brelse(bp); 
+readsf(char *mem, int dev) {
+  struct buf *b = bread(dev, 1000);
+  memmove(mem, b->data, 512);
+  brelse(b); 
 }
 
 // Read the super block.
@@ -63,12 +63,12 @@ bzero(int dev, int bno)
 }
 
 void 
-rawwrite(int dev, char* buf)
+writesf(char* mem, int dev)
 {
-  struct buf *bp = bread(dev, 1000);
-  memmove(bp->data, buf, BSIZE);
-  bwrite(bp);
-  brelse(bp);
+  struct buf *b = bread(dev, 1000);
+  memmove(b->data, mem, BSIZE);
+  bwrite(b);
+  brelse(b);
 }
 
 // Blocks.

@@ -35,8 +35,8 @@ int             filestat(struct file*, struct stat*);
 int             filewrite(struct file*, char*, int n);
 
 // fs.c
-void            rawread(int dev, char* buf);
-void            rawwrite(int dev, char* buf);
+void            readsf(char* mem, int dev);
+void            writesf(char* mem, int dev);
 void            readsb(int dev, struct superblock *sb);
 int             dirlink(struct inode*, char*, uint);
 struct inode*   dirlookup(struct inode*, char*, uint*);
