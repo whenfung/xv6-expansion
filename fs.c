@@ -30,12 +30,12 @@ struct superblock sb;
 struct {
   struct spinlock lock;
   char bmap[125];
-} sf;
+} swapfile;
 
 // Read the first block of rawdisk
 void
-readsf(char *mem, int dev) {
-  struct buf *b = bread(dev, 1000);
+readsf(char *mem, int dev, uint blockno) {
+  struct buf *b = bread(dev, blockno);
   memmove(mem, b->data, 512);
   brelse(b); 
 }
@@ -63,9 +63,9 @@ bzero(int dev, int bno)
 }
 
 void 
-writesf(char* mem, int dev)
+writesf(char* mem, int dev, uint blockno)
 {
-  struct buf *b = bread(dev, 1000);
+  struct buf *b = bread(dev, blockno);
   memmove(b->data, mem, BSIZE);
   bwrite(b);
   brelse(b);
@@ -200,9 +200,9 @@ iinit(int dev)
     initsleeplock(&icache.inode[i].lock, "inode");
   }
 
-  initlock(&sf.lock, "swapfile");
+  initlock(&swapfile.lock, "swapfile");
   for(int i = 0; i < 125; i ++) {
-    sf.bmap[i] = 0;
+    swapfile.bmap[i] = 0;
   }
 
   readsb(dev, &sb);
