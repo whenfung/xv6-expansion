@@ -23,8 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int swapout(char*);
-int swapin(char*);
+void swapout(char*, int, uint);
+void swapin(char*, int, uint);
 
 // ulib.c
 int stat(const char*, struct stat*);

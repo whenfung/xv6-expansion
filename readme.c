@@ -13,8 +13,8 @@ main()
   str1[26] = '\0';
   printf(1, "str1: %s\n", str1);
 
-  swapout(str1);  
-  swapin(str2);   
+  swapout(str1, 1, 1000);  
+  swapin(str2, 1, 1000);   
   
   printf(1, "str2: %s\n", str2);
 
