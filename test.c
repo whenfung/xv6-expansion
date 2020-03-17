@@ -40,5 +40,5 @@ main()
 {
 	mem();
 	printf(1, "退出\n");
-  return 0;
+  exit();
 }
