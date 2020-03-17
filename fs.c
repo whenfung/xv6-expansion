@@ -29,7 +29,7 @@ struct superblock sb;
 
 struct {
   struct spinlock lock;
-  char bmap[125];
+  char map[125];
 } swapfile;
 
 // Read the first block of rawdisk
@@ -38,6 +38,13 @@ readsf(char *mem, int dev, uint blockno) {
   struct buf *b = bread(dev, blockno);
   memmove(mem, b->data, 512);
   brelse(b); 
+}
+
+void 
+sfbfree(uint blockno) {
+  acquire(&swapfile.lock);
+  swapfile.map[(blockno -FSSIZE)/8] = 0;
+  release(&swapfile.lock);
 }
 
 // Read the super block.
@@ -60,6 +67,21 @@ bzero(int dev, int bno)
   memset(bp->data, 0, BSIZE);
   log_write(bp);
   brelse(bp);
+}
+
+uint 
+sfbget() 
+{
+  acquire(&swapfile.lock);
+  for(int i = 0; i < 125; i ++) {
+    if(swapfile.map[i] == 0) {
+      swapfile.map[i] = 1;
+      release(&swapfile.lock);
+      return FSSIZE + i*8;
+    }
+  }
+  release(&swapfile.lock);
+  return 0;
 }
 
 void 
@@ -202,7 +224,7 @@ iinit(int dev)
 
   initlock(&swapfile.lock, "swapfile");
   for(int i = 0; i < 125; i ++) {
-    swapfile.bmap[i] = 0;
+    swapfile.map[i] = 0;
   }
 
   readsb(dev, &sb);
