@@ -70,7 +70,7 @@ bzero(int dev, int bno)
 }
 
 uint 
-sfbget() 
+sfbget()  // 返回连续 8 块盘块的第一个盘块号 
 {
   acquire(&swapfile.lock);
   for(int i = 0; i < 125; i ++) {

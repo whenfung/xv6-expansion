@@ -451,8 +451,8 @@ sys_swapout()
   if(argint(0, (int*)&addr) < 0)
     return -1;
   
-  uint blockno = sfbget();
-  for(int i = 0; i < 8; i ++) {
+  uint blockno = sfbget();  // 申请交换区空闲盘块
+  for(int i = 0; i < 8; i ++) {  // 写盘块
     writesf((char*)addr + i*512, 1, blockno+i);
   }
   return blockno;
@@ -461,13 +461,14 @@ sys_swapout()
 int 
 sys_swapin()
 {
-  uint addr;
-  uint blockno;
+  uint addr;     // 第一个参数
+  uint blockno;  // 第二个参数
   if(argint(0, (int*)&addr) < 0 || argint(1, (int*)&blockno) < 0)
     return -1;
 
-  for(int i = 0; i < 8; i ++) {
+  for(int i = 0; i < 8; i ++) {  // 读盘块
     readsf((char*)addr + i*512, 1, blockno+i);
   }
+  sfbfree(blockno);
   return 0;
 }
