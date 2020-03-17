@@ -450,16 +450,24 @@ sys_swapout()
   uint addr;
   if(argint(0, (int*)&addr) < 0)
     return -1;
-  writesf((char*)addr, 1, 1000);
-  return 0;
+  
+  uint blockno = sfbget();
+  for(int i = 0; i < 8; i ++) {
+    writesf((char*)addr + i*512, 1, blockno+i);
+  }
+  return blockno;
 }
 
 int 
 sys_swapin()
 {
   uint addr;
-  if(argint(0, (int*)&addr) < 0)
+  uint blockno;
+  if(argint(0, (int*)&addr) < 0 || argint(1, (int*)&blockno) < 0)
     return -1;
-  readsf((char*)addr, 1, 1000);
+
+  for(int i = 0; i < 8; i ++) {
+    readsf((char*)addr + i*512, 1, blockno+i);
+  }
   return 0;
 }

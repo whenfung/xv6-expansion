@@ -8,15 +8,20 @@ main()
   char* str1 = (char*)malloc(4096);
   char* str2 = (char*)malloc(4096);
 
-  for(int i = 0; i < 26; i ++) 
-    str1[i] = 'a' + i;
-  str1[26] = '\0';
-  printf(1, "str1: %s\n", str1);
-
-  swapout(str1, 1, 1000);  
-  swapin(str2, 1, 1000);   
+  for(int i = 0; i < 8; i ++) 
+    str1[i*512] = 'a' + i;
   
-  printf(1, "str2: %s\n", str2);
+  printf(1,"str1: ");
+  for(int i = 0; i < 8; i ++)
+    printf(1, "%c", str1[i*512]);
+  
+  uint blockno = swapout(str1);  
+  swapin(str2, blockno);   
+  
+  printf(1, "\nstr2: ");
+  for(int i = 0; i < 8; i ++)
+    printf(1, "%c", str2[i*512]);
+  printf(1, "\n");
 
   exit();
 }

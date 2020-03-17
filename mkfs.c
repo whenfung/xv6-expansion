@@ -107,7 +107,7 @@ main(int argc, char *argv[])
 
   freeblock = nmeta;     // the first free block that we can allocate
 
-  for(i = 0; i < FSSIZE+50; i++)
+  for(i = 0; i < FSSIZE + SFSIZE; i++)
     wsect(i, zeroes);
 
   memset(buf, 0, sizeof(buf));

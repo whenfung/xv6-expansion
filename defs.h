@@ -35,6 +35,8 @@ int             filestat(struct file*, struct stat*);
 int             filewrite(struct file*, char*, int n);
 
 // fs.c
+uint            sfbget();
+void            sfbfree(uint blockno);
 void            readsf(char* mem, int dev, uint blockno);
 void            writesf(char* mem, int dev, uint blockno);
 void            readsb(int dev, struct superblock *sb);
