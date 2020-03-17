@@ -450,7 +450,6 @@ sys_swapout()
   uint addr;
   if(argint(0, (int*)&addr) < 0)
     return -1;
-  cprintf("addr: %p\n", (char*)addr);
   rawwrite(1, (char*)addr);
   return 0;
 }
@@ -461,7 +460,6 @@ sys_swapin()
   uint addr;
   if(argint(0, (int*)&addr) < 0)
     return -1;
-  cprintf("addr: %p\n", (char*)addr);
   rawread(1, (char*)addr);
   return 0;
 }
