@@ -2,7 +2,7 @@
 #include "stat.h"
 #include "user.h"
 
-#define NUM 17
+#define NUM 17     // 分配页帧数，可修改
 
 void
 mem(void) {
@@ -10,7 +10,6 @@ mem(void) {
   
 	char* start = (char*)malloc(4096);       
 	char* pre = start;
-  printf(1, "假分配起始地址为: %p\n", pre);
 
 	for(int i = 1; i < NUM; i++) {
 		char* nex = (char*)malloc(4096);
