@@ -106,7 +106,7 @@ swapout(struct proc* curproc)
   kfree(va);                            // 释放物理页帧
   cprintf("换出后剩余物理页帧数: %d\n", knum());
   cprintf("换出盘块号: %d, 即 %p\n", blockno, (char*)blockno);
-  *pte = blockno << 12 | PTE_SWAPPED;   // 更新 pte
+  *pte = blockno << 12;                 // 更新 pte
   cprintf("换出后修改 *pte 为: %p\n", *pte);
 }
 
@@ -147,7 +147,7 @@ int pgfault() {
   // 开始映射或是交换
   pte_t* pte = walkpgdir(curproc->pgdir, (void*)a, 1);  // 对应页表项
   cprintf("根据缺页地址 %x 找到 *PTE %x\n", a, *pte);
-  if((*pte & PTE_SWAPPED) == 0) {     // 非换出页
+  if(*pte == 0) {     // 非换出页
     cprintf("%p 第一次分配内存\n", mem);
     memset(mem, 0, PGSIZE);
     mappages(curproc->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W | PTE_U);
