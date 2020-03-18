@@ -79,6 +79,26 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
   return 0;
 }
 
+void pgfault() {
+  struct proc* curproc = myproc();
+  
+  uint a = PGROUNDDOWN(rcr2());   // cr2 存放引起缺页中断的进程空间地址
+  if(a >= curproc->sz) {
+    cprintf("访问非法地址: %p\n", (char*)a);
+    curproc->killed = 1;
+    return;
+  }
+  char* mem = kalloc();           // 申请物理页帧
+  if (mem == 0) {
+    cprintf("系统无空闲物理页帧\n");
+    curproc->killed = 1;
+    return;
+  }
+  memset(mem, 0, PGSIZE);
+  mappages(curproc->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W | PTE_U);
+  lcr3(V2P(curproc->pgdir));     // 重新加载页目录 
+}
+
 // There is one page table per process, plus one that's used when
 // a CPU is not running any process (kpgdir). The kernel uses the
 // current process's page table during system calls and interrupts;
