@@ -99,3 +99,12 @@ kalloc(void)
   return (char*)r;
 }
 
+int knum(void)
+{
+  if(kmem.use_lock)
+    acquire(&kmem.lock);
+  int num = kmem.num;
+  if(kmem.use_lock)
+    release(&kmem.lock);
+  return num;
+}
