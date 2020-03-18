@@ -315,7 +315,7 @@ sys_open(void)
     }
   }
 
-  if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
+  if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){ // 创建文件和描述符
     if(f)  // 创建文件结构失败
       fileclose(f);
     iunlockput(ip);
