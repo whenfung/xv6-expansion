@@ -138,8 +138,7 @@ int pgfault() {
   cprintf("还剩 %d 物理页帧\n", knum());
   if (mem == 0) {
     cprintf("系统无空闲物理页帧, 进行换出操作\n");
-    for(int i = 0; i < 3; i++) // 一次换出 5 页
-      swapout(curproc);             
+    swapout(curproc);             
     mem = kalloc();               // 再次申请页帧
     cprintf("再次分配的物理页帧线性地址: %p\n", mem);
   }
