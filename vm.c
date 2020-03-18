@@ -79,24 +79,84 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
   return 0;
 }
 
-void pgfault() {
+static pte_t*
+pickpage(struct proc *curproc)
+{
+  pde_t *pgdir = curproc->pgdir;
+  pte_t *pte;
+  for(uint i = curproc->sbrk_start; i < curproc->sz; i += PGSIZE) {
+    if(( pte = walkpgdir(pgdir, (void*)i, 0)) != 0)
+      if(*pte & PTE_P)
+        return pte;
+  }
+  return 0;
+}
+
+static void
+swapout(struct proc* curproc) 
+{
+  pte_t *pte = pickpage(curproc);       // 挑出一页
+  uint pa = PTE_ADDR(*pte);             // 得到待换出页物理地址
+  cprintf("待换出页面地址: %p\n", (char*)pa);
+  char* va = (char*)P2V(pa);            // 线性地址
+  cprintf("待换出页面线性地址: %p\n", va);
+  uint blockno = sfbget();              // 交换区的空闲盘块
+  for(int i = 0; i < 8; i ++)
+    writesf(va+i*512, 1, blockno + i);  // 换出交换区
+  kfree(va);                            // 释放物理页帧
+  cprintf("换出后剩余物理页帧数: %d\n", knum());
+  cprintf("换出盘块号: %d, 即 %p\n", blockno, (char*)blockno);
+  *pte = blockno << 12 | PTE_SWAPPED;   // 更新 pte
+  cprintf("换出后修改 *pte 为: %p\n", *pte);
+}
+
+static void
+swapin(char* mem, pte_t *pte)
+{
+  cprintf("待换入的 PTE: %p\n", *pte);
+  cprintf("申请到的物理页帧线性地址为: %x\n", mem);
+  int blockno = (*pte) >> 12;      // 盘块号
+  for(int i = 0; i < 8; i ++) 
+    readsf(mem+i*512, 1, blockno+i);  // 读数据
+  sfbfree(blockno);                  // 释放盘块
+  uint pa = V2P(mem);                 
+  cprintf("申请到的物理页帧的物理地址是 %x\n", pa);
+  *pte = pa | PTE_P | PTE_U | PTE_W; // 更新页表
+}
+
+int pgfault() {
   struct proc* curproc = myproc();
   
   uint a = PGROUNDDOWN(rcr2());   // cr2 存放引起缺页中断的进程空间地址
   if(a >= curproc->sz) {
-    cprintf("访问非法地址: %p\n", (char*)a);
-    curproc->killed = 1;
-    return;
+    cprintf("进程 %s 访问非法地址: %p\n", curproc->name, (char*)a);
+    return 0;
   }
+
+  // 分配内存操作 
   char* mem = kalloc();           // 申请物理页帧
+  cprintf("还剩 %d 物理页帧\n", knum());
   if (mem == 0) {
-    cprintf("系统无空闲物理页帧\n");
-    curproc->killed = 1;
-    return;
+    cprintf("系统无空闲物理页帧, 进行换出操作\n");
+    for(int i = 0; i < 3; i++) // 一次换出 5 页
+      swapout(curproc);             
+    mem = kalloc();               // 再次申请页帧
+    cprintf("再次分配的物理页帧线性地址: %p\n", mem);
   }
-  memset(mem, 0, PGSIZE);
-  mappages(curproc->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W | PTE_U);
+
+  // 开始映射或是交换
+  pte_t* pte = walkpgdir(curproc->pgdir, (void*)a, 1);  // 对应页表项
+  cprintf("根据缺页地址 %x 找到 *PTE %x\n", a, *pte);
+  if((*pte & PTE_SWAPPED) == 0) {     // 非换出页
+    cprintf("%p 第一次分配内存\n", mem);
+    memset(mem, 0, PGSIZE);
+    mappages(curproc->pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W | PTE_U);
+  } 
+  else {
+    swapin(mem, pte);
+  }
   lcr3(V2P(curproc->pgdir));     // 重新加载页目录 
+  return 1;
 }
 
 // There is one page table per process, plus one that's used when

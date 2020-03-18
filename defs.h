@@ -176,7 +176,7 @@ void            uartintr(void);
 void            uartputc(int);
 
 // vm.c
-void            pgfault();
+int             pgfault();
 void            seginit(void);
 void            kvmalloc(void);
 pde_t*          setupkvm(void);

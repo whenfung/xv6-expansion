@@ -6,7 +6,9 @@ int
 main()
 {
   char* str1 = (char*)malloc(4096);
+  printf(1, "进程空间地址: %p\n", str1);
   char* str2 = (char*)malloc(4096);
+  printf(1, "进程空间地址: %p\n", str2);
 
   for(int i = 0; i < 8; i ++) 
     str1[i*512] = 'a' + i;
