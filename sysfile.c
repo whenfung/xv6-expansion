@@ -447,6 +447,10 @@ sys_pipe(void)
 int 
 sys_chmod(void)
 {
-  cprintf("系统调用接口成功\n");
+  char *pathname;  // 路径名
+  int mode;       // 新的访问权限
+  if(argstr(0, &pathname) < 0 || argint(1, &mode) < 0)
+    return -1;
+  cprintf("pathname: %s; mode: %d\n", pathname, (char)mode);
   return 0;
 }
