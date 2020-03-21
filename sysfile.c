@@ -443,3 +443,10 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int 
+sys_chmod(void)
+{
+  cprintf("系统调用接口成功\n");
+  return 0;
+}
