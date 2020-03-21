@@ -5,6 +5,10 @@
 int
 main(int argc, char *argv[])
 {
-  chmod("content", 3);
+  if(argc <= 2) {
+    printf(1, "format: chmod pathname mode\n");
+    exit();
+  }
+  chmod(argv[1], atoi(argv[2]));
   exit();
 }
