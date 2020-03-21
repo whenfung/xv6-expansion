@@ -239,7 +239,7 @@ bad:
 }
 
 static struct inode*
-create(char *path, short type, short major, short minor)
+create(char *path, char type, short major, short minor)
 {
   uint off;
   struct inode *ip, *dp;
