@@ -98,8 +98,8 @@ sys_close(void)
 
   if(argfd(0, &fd, &f) < 0)
     return -1;
-  myproc()->ofile[fd] = 0;
-  fileclose(f);
+  myproc()->ofile[fd] = 0;  // 文件描述符列表更新
+  fileclose(f);             // 索引节点更新
   return 0;
 }
 
@@ -449,8 +449,27 @@ sys_chmod(void)
 {
   char *pathname;  // 路径名
   int mode;       // 新的访问权限
+  struct inode *ip;
   if(argstr(0, &pathname) < 0 || argint(1, &mode) < 0)
     return -1;
-  cprintf("pathname: %s; mode: %d\n", pathname, (char)mode);
+  
+  begin_op();
+  
+  if((ip = namei(pathname)) == 0) {
+    end_op();  
+    return -1;
+  }
+  
+  ilock(ip);
+  
+  ip->mode = (char)mode;
+  cprintf("inode: %d\n", ip->inum);
+  cprintf("mode: %d\n", ip->mode);
+  
+  iupdate(ip);
+  iunlock(ip);
+  
+  end_op();
+  
   return 0;
 }

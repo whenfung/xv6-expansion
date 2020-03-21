@@ -102,8 +102,12 @@ fileread(struct file *f, char *addr, int n)
     return -1;
   if(f->type == FD_PIPE)
     return piperead(f->pipe, addr, n);
-  if(f->type == FD_INODE){
-    ilock(f->ip);
+  if(f->type == FD_INODE){     // 文件类型
+    ilock(f->ip);              // 索引节点为临界资源
+    if((f->ip->mode & 1) == 0) { // 不可读
+      iunlock(f->ip);
+      return -1;
+    }
     if((r = readi(f->ip, addr, f->off, n)) > 0)
       f->off += r;
     iunlock(f->ip);
