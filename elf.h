@@ -4,9 +4,9 @@
 
 // File header
 struct elfhdr {
-  uint magic;  // must equal ELF_MAGIC
+  uint magic;      // must equal ELF_MAGIC
   uchar elf[12];
-  ushort type;
+  ushort type;     // 文件类型
   ushort machine;
   uint version;
   uint entry;
