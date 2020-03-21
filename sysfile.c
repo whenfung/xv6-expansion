@@ -461,11 +461,7 @@ sys_chmod(void)
   }
   
   ilock(ip);
-  
-  ip->mode = (char)mode;
-  cprintf("inode: %d\n", ip->inum);
-  cprintf("mode: %d\n", ip->mode);
-  
+  ip->mode = (char)mode; 
   iupdate(ip);
   iunlock(ip);
   
