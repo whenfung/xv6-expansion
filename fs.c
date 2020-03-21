@@ -193,7 +193,7 @@ static struct inode* iget(uint dev, uint inum);
 // Mark it as allocated by  giving it type type.
 // Returns an unlocked but allocated and referenced inode.
 struct inode*
-ialloc(uint dev, short type)
+ialloc(uint dev, char type)
 {
   int inum;
   struct buf *bp;
@@ -202,10 +202,11 @@ ialloc(uint dev, short type)
   for(inum = 1; inum < sb.ninodes; inum++){
     bp = bread(dev, IBLOCK(inum, sb));
     dip = (struct dinode*)bp->data + inum%IPB;
-    if(dip->type == 0){  // a free inode
+    if(dip->type == 0){  // a free inode, 下面是初始化操作
       memset(dip, 0, sizeof(*dip));
-      dip->type = type;
-      log_write(bp);   // mark it allocated on the disk
+      dip->mode = 3;
+      dip->type = type;  // 类型赋值
+      log_write(bp);     // mark it allocated on the disk
       brelse(bp);
       return iget(dev, inum);
     }
