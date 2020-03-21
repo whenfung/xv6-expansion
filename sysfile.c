@@ -208,7 +208,7 @@ sys_unlink(void)
     goto bad;
   ilock(ip);
 
-  if(ip->nlink < 1)
+  if(ip->nlink < 1)   // nlink 至少为 1
     panic("unlink: nlink < 1");
   if(ip->type == T_DIR && !isdirempty(ip)){  // 非空目录不可删
     iunlockput(ip);
@@ -220,12 +220,12 @@ sys_unlink(void)
     panic("unlink: writei");
   if(ip->type == T_DIR){  
     dp->nlink--;    // 更新目录索引节点
-    iupdate(dp);
+    iupdate(dp);    // 同步 dinode
   }
-  iunlockput(dp);
+  iunlockput(dp); 
 
-  ip->nlink--;      // 更新文件索引节点
-  iupdate(ip);
+  ip->nlink--;      // 减少一个目录引用
+  iupdate(ip);      // 同步 dinode
   iunlockput(ip);
 
   end_op();
