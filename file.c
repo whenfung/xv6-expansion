@@ -128,6 +128,17 @@ filewrite(struct file *f, char *addr, int n)
   if(f->type == FD_PIPE)
     return pipewrite(f->pipe, addr, n);
   if(f->type == FD_INODE){
+
+    begin_op();
+    ilock(f->ip);
+    if((f->ip->mode & 2) == 0) {
+      iunlock(f->ip);
+      end_op();
+      return -1;
+    }
+    iunlock(f->ip);
+    end_op();
+
     // write a few blocks at a time to avoid exceeding
     // the maximum log transaction size, including
     // i-node, indirect block, allocation blocks,
