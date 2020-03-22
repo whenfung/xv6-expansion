@@ -23,6 +23,7 @@ int getpid(void);  // 获得当前进程 pid
 char* sbrk(int);   // 为进程内存空间增加 n 字节
 int sleep(int);    // 睡眠 n 秒
 int uptime(void);
+int geti(char* filename, uint* addrs);
 
 // ulib.c
 int stat(const char*, struct stat*);

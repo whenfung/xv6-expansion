@@ -443,3 +443,27 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int
+sys_geti()
+{
+  char *filename;
+  uint *addrs;
+  struct inode *ip;
+  if(argstr(0, &filename) < 0 || argint(1, (int*)&addrs) < 0)
+    return -1;
+
+  begin_op();
+
+  if((ip = namei(filename)) == 0) {
+    end_op();
+    return -1;
+  }
+
+  ilock(ip);
+  for(int i = 0; i < 13; i ++)
+    addrs[i] = ip->addrs[i];
+  iunlock(ip);
+  end_op();
+  return 0;
+}
