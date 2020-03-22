@@ -181,6 +181,7 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_savei\
+	_recoveri\
 	_zombie\
 
 fs.img: mkfs README.md $(UPROGS)

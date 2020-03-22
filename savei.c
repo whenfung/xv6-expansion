@@ -10,18 +10,11 @@ main(int argc, char *argv[])
     printf(1, "format: savei filename temp\n");
     exit();
   }
-  uint addrs[13];
-  for(int i = 0; i < 13; i ++)
-    printf(1, "%d ", addrs[i]);
-  printf(1, "\n");
 
-  geti(argv[1], addrs);
+  uint addrs[13];        // 存储索引信息的数组
+  geti(argv[1], addrs);  // 获取索引信息
   
-  for(int i = 0; i < 13; i ++)
-    printf(1, "%d ", addrs[i]);
-  printf(1, "\n");
-
-  int fd = open("temp", O_CREATE | O_RDWR);
+  int fd = open("temp", O_CREATE | O_RDWR); // 将索引信息写到 temp 文件上
   write(fd, addrs, sizeof(addrs));
   close(fd);
   exit();

@@ -467,3 +467,14 @@ sys_geti()
   end_op();
   return 0;
 }
+
+int
+sys_recoverb()
+{
+  uint blockno;
+  char* buf;
+  if(argint(0, (int*)&blockno) < 0 || argstr(1, &buf) < 0)
+    return -1;
+  rcb(buf, blockno);
+  return 0;
+}

@@ -27,6 +27,14 @@ static void itrunc(struct inode*);
 // only one device
 struct superblock sb; 
 
+void
+rcb(char* mem, uint blockno) 
+{
+  struct buf *b = bread(1, blockno);
+  memmove(mem, b->data, 512);
+  brelse(b);
+}
+
 // Read the super block.
 void
 readsb(int dev, struct superblock *sb)

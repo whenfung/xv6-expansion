@@ -24,6 +24,7 @@ char* sbrk(int);   // 为进程内存空间增加 n 字节
 int sleep(int);    // 睡眠 n 秒
 int uptime(void);
 int geti(char* filename, uint* addrs);
+int recoverb(uint blockno, char* buf);
 
 // ulib.c
 int stat(const char*, struct stat*);
