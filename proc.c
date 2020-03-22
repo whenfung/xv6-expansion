@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->tid = 1;    // 初始化主线程
 
   release(&ptable.lock);
 
