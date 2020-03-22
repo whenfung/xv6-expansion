@@ -1,6 +1,7 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+#include "fcntl.h"
 
 int
 main(int argc, char *argv[])
@@ -19,5 +20,9 @@ main(int argc, char *argv[])
   for(int i = 0; i < 13; i ++)
     printf(1, "%d ", addrs[i]);
   printf(1, "\n");
+
+  int fd = open("temp", O_CREATE | O_RDWR);
+  write(fd, addrs, sizeof(addrs));
+  close(fd);
   exit();
 }
