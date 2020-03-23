@@ -97,11 +97,11 @@ found:
     p->state = UNUSED;
     return 0;
   }
-  sp = p->kstack + KSTACKSIZE;
+  sp = p->kstack + KSTACKSIZE;    // 内核栈栈顶
 
   // Leave room for trap frame.
-  sp -= sizeof *p->tf;
-  p->tf = (struct trapframe*)sp;
+  sp -= sizeof *p->tf;            // 压栈, 存放 trapframe 
+  p->tf = (struct trapframe*)sp;  // trapframe 首地址
 
   // Set up new context to start executing at forkret,
   // which returns to trapret.
@@ -524,7 +524,7 @@ procdump(void)
       state = states[p->state];
     else
       state = "???";
-    cprintf("%d %s %s", p->pid, state, p->name);
+    cprintf("%d %d %s %s", p->pid, p->tid, state, p->name);
     if(p->state == SLEEPING){
       getcallerpcs((uint*)p->context->ebp+2, pc);
       for(i=0; i<10 && pc[i] != 0; i++)
