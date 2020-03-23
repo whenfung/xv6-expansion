@@ -89,3 +89,10 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_clone()
+{
+  cprintf("进入 clone 函数\n");
+  return 0;
+}
