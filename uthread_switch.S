@@ -8,21 +8,21 @@
 thread_switch:
 	/* YOUR CODE HERE */
   // C 语言函数调用会压入下一条语句的 eip
-  pushal
+  pushal                        // 8 个 x86 通用寄存器
   // eax 指向 sp
-  movl current_thread, %eax
+  movl current_thread, %eax  
   // save sp
-  movl %esp, (%eax)
+  movl %esp, (%eax)            // 将 esp 保存到线程栈中
 
 
-  movl next_thread, %eax
-  movl %eax, current_thread
+  movl next_thread, %eax       // 下一个线程的结构体
+  movl %eax, current_thread    // current_thread = next_thread
   // restore sp
-  movl (%eax), %esp
+  movl (%eax), %esp            // 恢复栈顶指针
 
-  popal
+  popal                        // 弹出 8 个 x86 通用寄存器
   
-  movl $0x0, next_thread
+  movl $0x0, next_thread       // next_thread = 0
 
   // popal 后 esp 指向 return address	
   ret				/* pop return address from stack */
