@@ -17,7 +17,7 @@ main()
 
   int arg = 1;
   clone(worker, (void*)&arg, stack);
-  sleep(10);
+  join(&stack); 
   exit();
 }
 
