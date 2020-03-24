@@ -17,6 +17,7 @@ main()
 
   int arg = 1;
   thread_create(worker, (void*)&arg, stack);
+  sleep(10);
   exit();
 }
 
