@@ -91,7 +91,7 @@ sys_uptime(void)
 }
 
 int
-sys_thread_create()
+sys_clone()
 {
   int fcn, arg, stack;
   if(argint(0, &fcn) < 0)   return -1;
