@@ -78,7 +78,7 @@ allocproc(void)
 
   acquire(&ptable.lock);
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)  // 查找可用 PCB
     if(p->state == UNUSED)
       goto found;
 
@@ -86,32 +86,32 @@ allocproc(void)
   return 0;
 
 found:
-  p->state = EMBRYO;
-  p->pid = nextpid++;
-  p->tid = 1;    // 初始化主线程
+  p->state = EMBRYO;   // 设置为胚胎状态
+  p->pid = nextpid++;  // 设置进程号
+  p->tid = 1;          // 初始化主线程
 
   release(&ptable.lock);
 
   // Allocate kernel stack.
-  if((p->kstack = kalloc()) == 0){
+  if((p->kstack = kalloc()) == 0){   // 分配内核栈
     p->state = UNUSED;
     return 0;
   }
-  sp = p->kstack + KSTACKSIZE;    // 内核栈栈顶
+  sp = p->kstack + KSTACKSIZE;       // 内核栈栈顶
 
   // Leave room for trap frame.
-  sp -= sizeof *p->tf;            // 压栈, 存放 trapframe 
-  p->tf = (struct trapframe*)sp;  // trapframe 首地址
+  sp -= sizeof *p->tf;               // 压栈
+  p->tf = (struct trapframe*)sp;     // 存放 trapframe 首地址
 
   // Set up new context to start executing at forkret,
   // which returns to trapret.
-  sp -= 4;
-  *(uint*)sp = (uint)trapret;
+  sp -= 4;                           // 压栈
+  *(uint*)sp = (uint)trapret;        // 存放 trapret 地址
 
-  sp -= sizeof *p->context;
-  p->context = (struct context*)sp;
-  memset(p->context, 0, sizeof *p->context);
-  p->context->eip = (uint)forkret;
+  sp -= sizeof *p->context;          // 压栈
+  p->context = (struct context*)sp;  // 记录 context 首地址
+  memset(p->context, 0, sizeof *p->context);  // context 置 0
+  p->context->eip = (uint)forkret;   // 设置 eip
 
   return p;
 }
@@ -186,40 +186,40 @@ fork(void)
   struct proc *curproc = myproc();
 
   // Allocate process.
-  if((np = allocproc()) == 0){
+  if((np = allocproc()) == 0){   // 分配 PCB
     return -1;
   }
 
   // Copy process state from proc.
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
-    kfree(np->kstack);
-    np->kstack = 0;
-    np->state = UNUSED;
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){  // 拷贝页表
+    kfree(np->kstack);      // 失败则释放内核栈
+    np->kstack = 0;         // 置零
+    np->state = UNUSED;     // 回收
     return -1;
   }
-  np->sz = curproc->sz;
-  np->parent = curproc;
-  *np->tf = *curproc->tf;
+  np->sz = curproc->sz;     // 拷贝大小
+  np->parent = curproc;     // 指向父进程
+  *np->tf = *curproc->tf;   // 拷贝当前环境
 
   // Clear %eax so that fork returns 0 in the child.
-  np->tf->eax = 0;
+  np->tf->eax = 0;          // 子进程返回 0
 
-  for(i = 0; i < NOFILE; i++)
+  for(i = 0; i < NOFILE; i++)  // 拷贝文件描述符
     if(curproc->ofile[i])
       np->ofile[i] = filedup(curproc->ofile[i]);
-  np->cwd = idup(curproc->cwd);
+  np->cwd = idup(curproc->cwd);  // 拷贝目录
 
-  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));  // 拷贝名字
 
   pid = np->pid;
 
   acquire(&ptable.lock);
 
-  np->state = RUNNABLE;
+  np->state = RUNNABLE;    // 设置就绪状态
 
   release(&ptable.lock);
 
-  return pid;
+  return pid;     // 父进程得到子进程的进程号
 }
 
 // Exit the current process.  Does not return.
@@ -532,4 +532,10 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int clone(void (*fcn)(void*), void* arg, void* stack)
+{
+  cprintf("进入 clone 函数\n");
+  return 0;
 }

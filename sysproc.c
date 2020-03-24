@@ -91,8 +91,11 @@ sys_uptime(void)
 }
 
 int
-sys_clone()
+sys_thread_create()
 {
-  cprintf("进入 clone 函数\n");
-  return 0;
+  int fcn, arg, stack;
+  if(argint(0, &fcn) < 0)   return -1;
+  if(argint(1, &arg) < 0)   return -1;
+  if(argint(2, &stack) < 0) return -1;
+  return clone((void*)fcn, (void*)arg, (void*)stack);
 }

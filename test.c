@@ -16,7 +16,7 @@ main()
     stack += (4096 - (uint)stack % 4096);
 
   int arg = 1;
-  clone(worker, (void*)&arg, stack);
+  thread_create(worker, (void*)&arg, stack);
   exit();
 }
 
