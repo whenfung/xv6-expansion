@@ -9,6 +9,7 @@ int thread_join();
 
 void 
 worker(void *arg) {
+  printf(1, "线程 %d 正在工作\n", *(int*)arg);
   *(int*)arg = 2; 
   exit();
 }
@@ -16,8 +17,11 @@ worker(void *arg) {
 int
 main()
 {
-  int arg = 1;
-  thread_create(worker, (void*)&arg);
+  int t1 = 1;
+  int t2 = 2;
+  thread_create(worker, (void*)&t1);
+  thread_create(worker, (void*)&t2);
+  thread_join();
   thread_join();
   exit();
 }

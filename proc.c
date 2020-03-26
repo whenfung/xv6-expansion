@@ -537,11 +537,75 @@ procdump(void)
 int clone(void (*fcn)(void*), void* arg, void* stack)
 {
   cprintf("进入 clone 函数\n");
-  return 0;
+  struct proc *np;
+  struct proc *curproc = myproc();
+
+  if((np = allocproc()) == 0)   // 没有线程块了
+    return -1;
+  np->pgdir = curproc->pgdir;   // 进程空间
+  np->sz = curproc->sz;            // 复制线程大小
+  np->parent = curproc;         // 父线程
+  *np->tf = *curproc->tf;       // 继承 trapframe
+  np->stack = stack;            // 用户栈
+  np->tf->eax = 0;              // 唯有返回值不同
+  np->tid = curproc->tid + 1;   // 子线程
+
+  for(int i = 0; i < NOFILE; i++)  // 拷贝文件描述符
+    if(curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+  np->cwd = idup(curproc->cwd);  // 拷贝当前目录
+
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+
+  np->tf->eip = (int)fcn;   // PC 指针
+  int* ret = stack + 4096 - 2 * sizeof(int*); // 返回地址
+  *ret = 0xFFFFFFFF;
+  int* myarg = stack + 4096 - sizeof(int*);     // 函数参数
+  *myarg = (int)arg;
+  np->tf->esp = (int)stack + PGSIZE - 2 * sizeof(int*);
+  np->tf->ebp = np->tf->esp;
+
+  int tid = np->tid;
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+  return tid;
 }
 
 int join(void** stack)
 {
   cprintf("进入 join 函数\n");
+  struct proc *p;
+  int haveKids;
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+  for(;;) {
+    // 扫描整个表查找退出的子线程
+    haveKids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p ++) {
+      if(p->parent != curproc || p->tid == 1)
+        continue;
+      haveKids = 1;
+      if(p->state == ZOMBIE) {
+        int pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        p->state = UNUSED;
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        *stack = p->stack;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+    if(!haveKids || curproc->killed) {
+      release(&ptable.lock);
+      return -1;
+    } 
+    sleep(curproc, &ptable.lock);
+  }
   return 0;
 }
