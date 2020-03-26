@@ -102,6 +102,7 @@ sys_clone(void)
 
 int sys_join(void)
 {
-  cprintf("进入 join 函数\n");
-  return 0;
+  int stack;
+  if(argint(0, &stack) < 0) return -1;
+  return join((void**)stack);
 }

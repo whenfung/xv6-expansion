@@ -539,3 +539,9 @@ int clone(void (*fcn)(void*), void* arg, void* stack)
   cprintf("进入 clone 函数\n");
   return 0;
 }
+
+int join(void** stack)
+{
+  cprintf("进入 join 函数\n");
+  return 0;
+}
