@@ -4,16 +4,17 @@
 #include "stat.h"
 #include "user.h"
 
-int global = 1;
+volatile int global = 1;
 
 void 
 worker(void *arg_ptr) {
   global = 5;
+  printf(1, "son change global to %d\n", global);
   exit();
 }
 
 int
-main(int argc, char *argv[])
+main()
 {
   int pid = getpid();
   void* stack = malloc(4096*2);
@@ -22,7 +23,8 @@ main(int argc, char *argv[])
 
   int clone_pid = clone(worker, 0, stack);
   while(global != 5);
-  printf(1, "TEST PASSED\n");
+  printf(1, "global = %d\n", global);
+  printf(1, "TEST PASSED, %d create %d\n", pid, clone_pid);
   exit();
 }
 

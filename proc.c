@@ -232,7 +232,7 @@ exit(void)
   struct proc *p;
   int fd;
 
-  if(curproc == initproc)
+  if(curproc == initproc)    // 初始进程是进程树的根
     panic("init exiting");
 
   // Close all open files.
@@ -246,7 +246,7 @@ exit(void)
   begin_op();
   iput(curproc->cwd);   // 更新目录
   end_op();
-  curproc->cwd = 0;
+  curproc->cwd = 0;     // 不再使用当前目录
 
   acquire(&ptable.lock);
 
