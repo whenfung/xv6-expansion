@@ -9,8 +9,14 @@ void worker(void* arg) {
 int
 main()
 {
-  int t = 1;
-  thread_create(worker, &t);
+  int t1 = 1;
+  int t2 = 2;
+  int t3 = 3;
+  thread_create(worker, &t1);
+  thread_create(worker, &t2);
+  thread_create(worker, &t3);
+  thread_join();
+  thread_join();
   thread_join();
   exit();
 }
