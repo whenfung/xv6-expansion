@@ -537,18 +537,52 @@ procdump(void)
 int clone(void (*fcn)(void*), void* arg, void* stack)
 {
   cprintf("进入 clone 函数\n");
-  struct proc *np;
-  struct proc *curproc = myproc();
+  struct proc *np;                  // 新线程
+  struct proc *curproc = myproc();  // 当前进程
+  struct proc *main_thread;         // 主线程
+  struct proc *p;                   // 临时变量
+  int pid = curproc->pid;           // 当前进程号
+  int next_tid = 1;                 // 新线程号
+  int num_of_thread = 0;            // 线程个数
 
-  if((np = allocproc()) == 0)   // 没有线程块了
+  // 寻找主线程
+  acquire(&ptable.lock);
+  main_thread = curproc;    
+  while(main_thread->tid != 1) 
+    main_thread = main_thread->parent;
+
+  // 寻找下一个 tid
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if ( p->pid == pid) {
+      if(p->tid > next_tid) next_tid = p->tid;
+      if(p->state != UNUSED) num_of_thread ++;
+    }
+  }
+  next_tid ++;
+  release(&ptable.lock);
+
+  if( num_of_thread >= 8) return -1;  // 一个进程最多有 8 个线程
+
+  // 分配线程块
+  if((np = allocproc()) == 0)
     return -1;
-  np->pgdir = curproc->pgdir;   // 进程空间
-  np->sz = curproc->sz;            // 复制线程大小
-  np->parent = curproc;         // 父线程
-  *np->tf = *curproc->tf;       // 继承 trapframe
-  np->stack = stack;            // 用户栈
-  np->tf->eax = 0;              // 唯有返回值不同
-  np->tid = curproc->tid + 1;   // 子线程
+
+  np->tid = next_tid;           // 设置线程号
+  np->pgdir = curproc->pgdir;   // 共享页表
+  np->sz = curproc->sz;         // 同样的进程空间
+  np->parent = curproc;         // 所有线程由主线程控制
+  *np->tf = *curproc->tf;       // 共享 trapframe
+
+  int *sp = stack + 4096 - 8;
+
+  // 设置参数和函数入口
+  np->tf->eip = (int)fcn;
+  np->tf->esp = (int)sp;  // 栈顶
+  np->tf->ebp = (int)sp;
+  np->tf->eax = 0;            // 初始化返回值
+
+  *(sp + 1) = (int)arg;  // *(np->tf->esp +4) = (int)arg;
+  *sp = 0xffffffff;    // *(np->tf->esp) = 0xffffffff; end of stack (fake return PC value
 
   for(int i = 0; i < NOFILE; i++)  // 拷贝文件描述符
     if(curproc->ofile[i])
@@ -556,20 +590,16 @@ int clone(void (*fcn)(void*), void* arg, void* stack)
   np->cwd = idup(curproc->cwd);  // 拷贝当前目录
 
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  np->pid = curproc->pid;   // 所有线程的 pid 一致 
 
-  np->tf->eip = (int)fcn;   // PC 指针
-  int* ret = stack + 4096 - 2 * sizeof(int*); // 返回地址
-  *ret = 0xFFFFFFFF;
-  int* myarg = stack + 4096 - sizeof(int*);     // 函数参数
-  *myarg = (int)arg;
-  np->tf->esp = (int)stack + PGSIZE - 2 * sizeof(int*);
-  np->tf->ebp = np->tf->esp;
-
-  int tid = np->tid;
+  // 修改状态
   acquire(&ptable.lock);
   np->state = RUNNABLE;
   release(&ptable.lock);
-  return tid;
+ 
+  // 返回线程号给新的线程
+  // 如果错误, 返回 -1;
+  return next_tid;
 }
 
 int join(void** stack)

@@ -51,6 +51,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   
   int tid;                     // 1 表示主线程
+  void *retval;                // 返回地址
   void *stack;                 // 线程栈
 };
 
