@@ -4,7 +4,7 @@
 int
 main()
 {
-  clone(0, 0, 0);
-  join(0);
+  thread_create(0, 0);
+  thread_join();
   exit();
 }

@@ -536,13 +536,14 @@ procdump(void)
 // malloc space for new stack then pass to clone
 int clone(void(*fcn)(void*), void* arg, void* stack)
 {
-  cprintf("enter clone.\n");
+  cprintf("in clone, stack start addr = %p\n", stack);
   return 0;
 }
 
+// free TCB
 int
 join(void** stack)
 {
-  cprintf("enter join.\n");
+  cprintf("in join, stack pointer = %p\n", *stack);
   return 0;
 }
