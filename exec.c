@@ -66,7 +66,7 @@ exec(char *path, char **argv)
   if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
     goto bad;
   clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
-  sp = sz;
+  sp = sz;    // 栈顶
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
@@ -79,8 +79,8 @@ exec(char *path, char **argv)
   }
   ustack[3+argc] = 0;
 
-  ustack[0] = 0xffffffff;  // fake return PC
-  ustack[1] = argc;
+  ustack[0] = 0xffffffff;       // fake return PC
+  ustack[1] = argc;             // 参数个数
   ustack[2] = sp - (argc+1)*4;  // argv pointer
 
   sp -= (3+argc+1) * 4;

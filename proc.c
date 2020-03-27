@@ -96,21 +96,21 @@ found:
     p->state = UNUSED;
     return 0;
   }
-  sp = p->kstack + KSTACKSIZE;
+  sp = p->kstack + KSTACKSIZE;     // 栈是从上到下的
 
   // Leave room for trap frame.
-  sp -= sizeof *p->tf;
-  p->tf = (struct trapframe*)sp;
+  sp -= sizeof *p->tf;            // trapframe 在栈顶
+  p->tf = (struct trapframe*)sp;  // 记录 trapframe 首地址
 
   // Set up new context to start executing at forkret,
   // which returns to trapret.
   sp -= 4;
-  *(uint*)sp = (uint)trapret;
+  *(uint*)sp = (uint)trapret;       // trapframe 下面就是 trapret
 
-  sp -= sizeof *p->context;
-  p->context = (struct context*)sp;
-  memset(p->context, 0, sizeof *p->context);
-  p->context->eip = (uint)forkret;
+  sp -= sizeof *p->context;          // trapret 下面是用户进程的 context
+  p->context = (struct context*)sp;  // 记录 context 地址
+  memset(p->context, 0, sizeof *p->context);  // 运行前全为 0
+  p->context->eip = (uint)forkret;   // 接下来进程将跳转到 forkret
 
   return p;
 }

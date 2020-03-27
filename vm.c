@@ -351,12 +351,12 @@ uva2ka(pde_t *pgdir, char *uva)
 {
   pte_t *pte;
 
-  pte = walkpgdir(pgdir, uva, 0);
+  pte = walkpgdir(pgdir, uva, 0);  // 找到物理帧入口
   if((*pte & PTE_P) == 0)
     return 0;
   if((*pte & PTE_U) == 0)
     return 0;
-  return (char*)P2V(PTE_ADDR(*pte));
+  return (char*)P2V(PTE_ADDR(*pte)); // 转化为线性地址
 }
 
 // Copy len bytes from p to user address va in page table pgdir.
