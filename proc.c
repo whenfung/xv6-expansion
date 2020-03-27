@@ -182,10 +182,10 @@ fork(void)
 {
   int i, pid;
   struct proc *np;
-  struct proc *curproc = myproc();
+  struct proc *curproc = myproc();  // 当前进程, 即父进程
 
   // Allocate process.
-  if((np = allocproc()) == 0){
+  if((np = allocproc()) == 0){   // 子进程控制块
     return -1;
   }
 
