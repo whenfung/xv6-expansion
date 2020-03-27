@@ -560,7 +560,7 @@ int clone(void(*fcn)(void*), void* arg, void* stack)
   // Clone may need to change other registers than ones seen in fork
   np->tf->eip = (int)fcn;
   np->tf->esp = (int)sp;  // top of stack
-  np->tf->ebp = (int)sp;  
+  np->tf->ebp = (int)sp;  // 栈帧指针 
   np->tf->eax = 0;   // Clear %eax so that clone returns 0 in the child
 
   // setup new user stack and some pointers
