@@ -539,7 +539,7 @@ procdump(void)
 // malloc space for new stack then pass to clone
 int clone(void(*fcn)(void*), void* arg, void* stack)
 {
-  cprintf("in clone, stack start addr = %p\n", stack);
+//  cprintf("in clone, stack start addr = %p\n", stack);
   struct proc *curproc = myproc();  // 调用 clone 的进程
   struct proc *np;
 
@@ -588,7 +588,7 @@ int clone(void(*fcn)(void*), void* arg, void* stack)
 int
 join(void** stack)
 {
-  cprintf("in join, stack pointer = %p\n", *stack);
+//  cprintf("in join, stack pointer = %p\n", *stack);
   struct proc *curproc = myproc();
   struct proc *p;
   int havekids;
