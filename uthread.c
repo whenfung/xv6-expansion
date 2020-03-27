@@ -24,7 +24,7 @@ void add_thread(int* pid, void* ustack) {
 void remove_thread(int* pid) {
   for(int i = 0; i < NTHREAD; i ++) {
     if(threads[i].used && threads[i].pid == *pid) {
-      free(threads[i].ustack);
+      free(threads[i].ustack);   // 释放用户栈
       threads[i].pid = 0;
       threads[i].ustack = 0;
       threads[i].used = 0;
@@ -52,7 +52,7 @@ int thread_create(void (*start_routine)(void*), void* arg) {
 int thread_join(void) {
   for(int i = 0; i < NTHREAD; i ++) {
     if(threads[i].used == 1) {
-      int pid = join(&threads[i].ustack);
+      int pid = join(&threads[i].ustack);  // 回收子线程
       if(pid > 0) {
         remove_thread(&pid);
         return pid;
