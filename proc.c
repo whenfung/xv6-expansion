@@ -244,17 +244,17 @@ exit(void)
   }
 
   begin_op();
-  iput(curproc->cwd);
+  iput(curproc->cwd);   // 更新目录
   end_op();
   curproc->cwd = 0;
 
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().
-  wakeup1(curproc->parent);
+  wakeup1(curproc->parent);   // 唤醒父进程
 
   // Pass abandoned children to init.
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){  // 传递孤儿进程
     if(p->parent == curproc){
       p->parent = initproc;
       if(p->state == ZOMBIE)
@@ -264,7 +264,7 @@ exit(void)
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
-  sched();
+  sched();        // 执行调度
   panic("zombie exit");
 }
 
@@ -284,8 +284,8 @@ wait(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != curproc)
         continue;
-      havekids = 1;
-      if(p->state == ZOMBIE){
+      havekids = 1;   // 找到子进程
+      if(p->state == ZOMBIE){  // 执行回收进程块操作
         // Found one.
         pid = p->pid;
         kfree(p->kstack);
@@ -378,7 +378,7 @@ sched(void)
   if(readeflags()&FL_IF)
     panic("sched interruptible");
   intena = mycpu()->intena;
-  swtch(&p->context, mycpu()->scheduler);
+  swtch(&p->context, mycpu()->scheduler);  // 上下文切换
   mycpu()->intena = intena;
 }
 
