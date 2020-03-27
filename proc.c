@@ -602,35 +602,37 @@ int clone(void (*fcn)(void*), void* arg, void* stack)
   return next_tid;
 }
 
-int join(void** stack)
+int join(int tid, void**retval)
 {
   cprintf("进入 join 函数\n");
   struct proc *p;
-  int haveKids;
   struct proc *curproc = myproc();
+  int haveKids;
 
   acquire(&ptable.lock);
   for(;;) {
-    // 扫描整个表查找退出的子线程
+    // 扫描整个表查找子线程
     haveKids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p ++) {
-      if(p->parent != curproc || p->tid == 1)
+      if(p->parent != curproc || p->tid == 1)  // 非 curproc 下的线程
         continue;
+      
       haveKids = 1;
       if(p->state == ZOMBIE) {
-        int pid = p->pid;
         kfree(p->kstack);
-        p->kstack = 0;
-        p->state = UNUSED;
-        p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
-        *stack = p->stack;
+        p->pid = 0;
+        p->tid = 0;
+        p->state = UNUSED;
+        *retval = p->retval;
+        p->retval = 0;
         release(&ptable.lock);
-        return pid;
+        return 0;
       }
     }
+    
     if(!haveKids || curproc->killed) {
       release(&ptable.lock);
       return -1;
