@@ -532,3 +532,17 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+// malloc space for new stack then pass to clone
+int clone(void(*fcn)(void*), void* arg, void* stack)
+{
+  cprintf("enter clone.\n");
+  return 0;
+}
+
+int
+join(void** stack)
+{
+  cprintf("enter join.\n");
+  return 0;
+}
