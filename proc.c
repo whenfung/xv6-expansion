@@ -251,6 +251,9 @@ exit(void)
 
   // Parent might be sleeping in wait().
   wakeup1(curproc->parent);
+  
+  // Parent might be sleeping in join().
+  wakeup1(curproc->pthread);
 
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -537,7 +540,48 @@ procdump(void)
 int clone(void(*fcn)(void*), void* arg, void* stack)
 {
   cprintf("in clone, stack start addr = %p\n", stack);
-  return 0;
+  struct proc *curproc = myproc();  // 调用 clone 的进程
+  struct proc *np;
+
+  // allocate a PCB
+  if((np = allocproc()) == 0)
+   return -1; 
+  
+  // For clone, don't need to copy entire address space like fork
+  np->pgdir = curproc->pgdir;  // 线程间公用页表
+  np->sz = curproc->sz;
+  np->pthread = curproc;       // exit 时唤醒用
+  np->ustack = stack;          // 记录非主线程的栈
+  np->parent = 0;
+  *np->tf = *curproc->tf;      // 继承 trapframe
+
+  int* sp = stack + 4096 - 8;
+
+  // Clone may need to change other registers than ones seen in fork
+  np->tf->eip = (int)fcn;
+  np->tf->esp = (int)sp;  // top of stack
+  np->tf->ebp = (int)sp;  
+  np->tf->eax = 0;   // Clear %eax so that clone returns 0 in the child
+
+  // setup new user stack and some pointers
+  *(sp + 1) = (int)arg; // *(np->tf->esp+4) = (int)arg
+  *sp = 0xffffffff;     // end of stack (fake return PC value)
+
+  for(int i = 0; i < NOFILE; i++)
+    if(curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+  np->cwd = idup(curproc->cwd);
+
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  
+  int pid = np->pid;
+  
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+ 
+  // return the ID of the new thread
+  return pid;
 }
 
 // free TCB
@@ -545,5 +589,43 @@ int
 join(void** stack)
 {
   cprintf("in join, stack pointer = %p\n", *stack);
+  struct proc *curproc = myproc();
+  struct proc *p;
+  int havekids;
+  acquire(&ptable.lock);
+  for(;;) {
+    // scan through table looking for zombie children
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if(p->pthread != curproc)
+        continue;
+
+      havekids = 1;
+      if(p->state == ZOMBIE) {
+        *stack = p->ustack;   // 记录用户栈, 返回用户态销毁用
+        int pid = p->pid;
+        
+        kfree(p->kstack);
+        p->kstack = 0;
+        p->state = UNUSED;
+        p->pid = 0;
+        p->parent = 0;
+        p->pthread = 0;
+        p->ustack = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    // No point waiting if we don't have any children
+    if(!havekids || curproc->killed) {
+      release(&ptable.lock);
+      return -1;
+    }
+    // Wait for children to exit
+    sleep(curproc, &ptable.lock);   
+  }
   return 0;
 }
