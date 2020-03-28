@@ -1,11 +1,32 @@
 #include "types.h"
 #include "user.h"
+#include "fcntl.h"
 
 volatile int global = 1;
 
+
+int F(int n)   //  斐波那契数列, 测试用户栈
+{
+	if(n < 0)
+		printf(1, "请输入一个正整数\n");
+	else if(n == 1 || n == 2)
+		return 1;
+	else {
+		return F(n - 1) + F(n - 2);
+	}
+	return 0;
+}
+
 void worker(void* arg) {
+//  printf(1, "arg addr = %x\n", (int)&arg);
   printf(1, "thread %d is worker.\n", *(int*)arg);
-  global = 5;  // verify that address space is shared;
+  
+  // 测试全局变量、压栈测试
+  global = F(15);
+  
+  // 测试文件描述符
+  write(3, "hello\n", 6);  // 运行后可以在目录下看到新文件
+
   exit();
 }
 
@@ -17,12 +38,11 @@ void boss(void* arg) {
 int
 main()
 {
-  int t1 = 1;
-  int t2 = 2;
-  thread_create(worker, &t1);
-  thread_create(boss,   &t2);
+  int t = 1;
+  open("tmp", O_RDWR | O_CREATE);
+  int pid = thread_create(worker, &t);
   thread_join();
-  thread_join();
+  printf(1, "thread id = %d\n", pid);
   printf(1, "global = %d\n", global);
   exit();
 }

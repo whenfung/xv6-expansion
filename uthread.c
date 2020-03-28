@@ -48,6 +48,8 @@ int thread_create(void (*start_routine)(void*), void* arg) {
   void* stack = malloc(PGSIZE);   // allocate one page for user stack
   int pid = clone(start_routine, arg, stack); // system call for kernel thread
   add_thread(&pid, stack);  // save new thread to thread table
+//  printf(1, "arg addr= %x\n", (int)(stack + 4096 - 4));
+//  printf(1, "PC = %x\n", *(int*)(stack + 4096 - 8));
   return pid;
 }
 
