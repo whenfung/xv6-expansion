@@ -56,7 +56,7 @@ int thread_create(void (*start_routine)(void*), void* arg) {
 int thread_join(void) {
   for(int i = 0; i < NTHREAD; i ++) {
     if(threads[i].used == 1) {
-      int pid = join(&threads[i].ustack);  // 回收子线程
+      int pid = join();      // 回收子线程
       if(pid > 0) {
         remove_thread(&pid);
         return pid;

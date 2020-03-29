@@ -106,8 +106,5 @@ sys_clone(void)
 int 
 sys_join(void)
 {
-  void** stack = 0;
-  if(argint(0, (int*)&stack) < 0) return -1;
-
-  return join(stack);
+  return join();
 }

@@ -551,7 +551,6 @@ int clone(void(*fcn)(void*), void* arg, void* stack)
   np->pgdir = curproc->pgdir;  // 线程间公用页表
   np->sz = curproc->sz;
   np->pthread = curproc;       // exit 时唤醒用
-  np->ustack = stack;          // 记录非主线程的栈
   np->parent = 0;
   *np->tf = *curproc->tf;      // 继承 trapframe
 
@@ -561,7 +560,7 @@ int clone(void(*fcn)(void*), void* arg, void* stack)
   np->tf->eip = (int)fcn;
   np->tf->esp = (int)sp;  // top of stack
   np->tf->ebp = (int)sp;  // 栈帧指针 
-  np->tf->eax = 0;   // Clear %eax so that clone returns 0 in the child
+  np->tf->eax = 0;    // Clear %eax so that clone returns 0 in the child
 
   // setup new user stack and some pointers
   *(sp + 1) = (int)arg; // *(np->tf->esp+4) = (int)arg
@@ -586,7 +585,7 @@ int clone(void(*fcn)(void*), void* arg, void* stack)
 
 // free TCB
 int
-join(void** stack)
+join()
 {
 //  cprintf("in join, stack pointer = %p\n", *stack);
   struct proc *curproc = myproc();
@@ -602,7 +601,6 @@ join(void** stack)
 
       havekids = 1;
       if(p->state == ZOMBIE) {
-        *stack = p->ustack;   // 记录用户栈, 返回用户态销毁用
         int pid = p->pid;
         
         kfree(p->kstack);
@@ -611,7 +609,6 @@ join(void** stack)
         p->pid = 0;
         p->parent = 0;
         p->pthread = 0;
-        p->ustack = 0;
         p->name[0] = 0;
         p->killed = 0;
         release(&ptable.lock);
