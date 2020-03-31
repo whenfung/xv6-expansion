@@ -43,17 +43,17 @@ exec(char *path, char **argv)
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
     if(readi(ip, (char*)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
-    if(ph.type != ELF_PROG_LOAD)
+    if(ph.type != ELF_PROG_LOAD)   // 判断是否需要加载
       continue;
-    if(ph.memsz < ph.filesz)
+    if(ph.memsz < ph.filesz)       // 所需内存要大于加载文件
       goto bad;
-    if(ph.vaddr + ph.memsz < ph.vaddr)
+    if(ph.vaddr + ph.memsz < ph.vaddr)  // 判断合法性
       goto bad;
-    if((sz = allocuvm(pgdir, sz, ph.vaddr + ph.memsz)) == 0)
+    if((sz = allocuvm(pgdir, sz, ph.vaddr + ph.memsz)) == 0)  // 分配内存
       goto bad;
-    if(ph.vaddr % PGSIZE != 0)
+    if(ph.vaddr % PGSIZE != 0)     // 需要页帧对齐
       goto bad;
-    if(loaduvm(pgdir, (char*)ph.vaddr, ip, ph.off, ph.filesz) < 0)
+    if(loaduvm(pgdir, (char*)ph.vaddr, ip, ph.off, ph.filesz) < 0) // 替换进程
       goto bad;
   }
   iunlockput(ip);
