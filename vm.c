@@ -127,7 +127,10 @@ int pgfault() {
 
   char* mem = kalloc();           // 申请空闲物理页帧
   if (mem == 0) {                 // 无空闲物理页帧
-    swapout(curproc);             // 换出操作
+    for(int i = 0; i < 64; i++) {
+      swapout(curproc);             // 换出操作
+      cprintf("换出 %d\n", i);
+    }
     mem = kalloc();               // 再次申请页帧
   }
 

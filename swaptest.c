@@ -2,7 +2,7 @@
 #include "stat.h"
 #include "user.h"
 
-#define NUM 17     // 分配页帧数，可修改
+#define NUM 60*1024   // 分配页帧数，可修改
 
 void
 mem(void) {
@@ -12,7 +12,8 @@ mem(void) {
 	char* pre = start;
 
 	for(int i = 1; i < NUM; i++) {
-		char* nex = (char*)malloc(4096);
+		if(i % 1024 == 0) printf(1, "%d\n", i/1024*4);
+    char* nex = (char*)malloc(4096);
 		if (nex == 0)
 			goto failed;
 		*(char**)pre = nex;
@@ -21,6 +22,8 @@ mem(void) {
 	}
 
 	((int*)pre)[2] = NUM;   // 最后一块
+
+  printf(1, "申请完毕\n");
 
   while(1){
     printf(1, "%d : %p \n", ((int*)start)[2], (char*)start);

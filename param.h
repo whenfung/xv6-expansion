@@ -10,5 +10,5 @@
 #define MAXOPBLOCKS  10  // max # of blocks any FS op writes
 #define LOGSIZE      (MAXOPBLOCKS*3)  // max data blocks in on-disk log
 #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
-#define FSSIZE       1000  // size of file system in blocks
-#define SFSIZE       1000  // 交换区大小
+#define FSSIZE       1024  // size of file system in blocks
+#define SFSIZE       8*1024  // 交换区大小

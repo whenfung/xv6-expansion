@@ -89,7 +89,7 @@ kalloc(void)
 
   if(kmem.use_lock)
     acquire(&kmem.lock);
-  if(kmem.num > 670) {
+  if(kmem.num > 0) {
     r = kmem.freelist;
     kmem.freelist = r->next;
     kmem.num --;

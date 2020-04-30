@@ -182,6 +182,8 @@ UPROGS=\
 	_wc\
 	_test\
 	_swaptest\
+	_test1\
+	_test2\
 	_zombie\
 
 fs.img: mkfs README.md $(UPROGS)
