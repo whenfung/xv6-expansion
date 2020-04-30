@@ -4,7 +4,6 @@
 
 volatile int global = 1;  // 测试线程是否共享变量
 
-
 int F(int n)   //  斐波那契数列, 测试用户栈
 {
 	if(n < 0)
