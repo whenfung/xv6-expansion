@@ -184,6 +184,7 @@ UPROGS=\
 	_test1\
 	_test2\
 	_test3\
+	_multithread\
 	_zombie\
 
 fs.img: mkfs README.md $(UPROGS)
