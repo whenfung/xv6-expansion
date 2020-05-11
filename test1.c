@@ -2,7 +2,7 @@
 #include "stat.h"
 #include "user.h"
 
-#define NUM 56*1024   // 224 MB
+#define NUM 55*1024   // 224 MB
 
 void
 memtest(void) {
@@ -24,6 +24,9 @@ memtest(void) {
 int
 main()
 {
+  uint start = uptime();
 	memtest();
+  uint end = uptime();
+  printf(1,"消耗时间为：%d\n", end - start);
 	exit();
 }
