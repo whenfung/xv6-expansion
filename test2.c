@@ -2,6 +2,8 @@
 #include "user.h"
 
 void worker(void* arg) {
+  uint start = uptime();
+  
   // 线程工作
   float x = 1.0;
   for(float i = 0; i < 15; i+=1) 
@@ -9,7 +11,9 @@ void worker(void* arg) {
       x = x*1*3.14*2.18*1.99;
       x = 1.0;
     }
-  printf(1, "%d 线程完成工作\n", *(int*)arg);
+
+  uint end = uptime();
+  printf(1, "%d 线程完成工作 %d\n", *(int*)arg, end - start);
   exit();
 }
 
