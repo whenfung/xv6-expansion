@@ -7,11 +7,26 @@ void worker(void* arg) {
   printf(1, "线程 %d 开始工作\n", *(int*)arg);
 
   uint start = uptime();
-  float x = 1.0;
-  for(float i = 0; i < 30/n; i += 1)  // 分配工作量 
-    for(float j = 0; j < 100000; j += 0.1) {
-      x = x + 0.01 * 1;
+
+  int a = 0;
+  int b = 0; 
+  int c = 0;
+  for(int i = 0; i < 60/n; i ++) {  // 分配工作量 
+    for(int j = 0; j < 1000; j ++) {
+      for(int k = 0; k < 100000; k++) {
+        c++;
+        if( c > 100000 ) {
+          c = c - 100000;
+          b++;
+        }
+        if( b > 100000) {
+          b = b - 100000;
+          a ++;
+        }
+      }
     }
+  }
+  printf(1,"a = %d, b = %d, c = %d\n", a, b, c);
   uint end = uptime();
   printf(1, "线程 %d 完成工作, 期间发生了 %d 次时钟中断\n", *(int*)arg, end - start);
   exit();
