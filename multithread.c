@@ -12,7 +12,7 @@ void worker(void* arg) {
   int b = 0; 
   int c = 0;
   for(int i = 0; i < 60/n; i ++) {  // 分配工作量 
-    for(int j = 0; j < 1000; j ++) {
+    for(int j = 0; j < 500; j ++) {
       for(int k = 0; k < 100000; k++) {
         c++;
         if( c > 100000 ) {
