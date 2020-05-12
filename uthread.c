@@ -1,7 +1,7 @@
 #include "types.h"
 #include "user.h"
 
-#define NTHREAD 4     // 一个进程的最大线程数 (不包括主线程)
+#define NTHREAD 16     // 一个进程的最大线程数 (不包括主线程)
 #define PGSIZE  4096
 
 struct {

@@ -1,6 +1,7 @@
 #include "types.h"
 #include "user.h"
 
+#define N 16
 int n;
 
 void worker(void* arg) {
@@ -12,7 +13,7 @@ void worker(void* arg) {
   int b = 0; 
   int c = 0;
   for(int i = 0; i < 60/n; i ++) {  // 分配工作量 
-    for(int j = 0; j < 500; j ++) {
+    for(int j = 0; j < 5; j ++) {
       for(int k = 0; k < 100000; k++) {
         c++;
         if( c > 100000 ) {
@@ -39,10 +40,10 @@ int main(int argc, char **argv)
   n = atoi(argv[1]);
   printf(1, "%d 个线程在跑\n", n);
 
-  if( n < 1 || n > 4) exit();
+  if( n < 1 || n > N) exit();
 
-  int arg[4];
-  for(int i = 0; i < 4; i ++)
+  int arg[N];
+  for(int i = 0; i < N; i ++)
     arg[i] = i+1;
 
   uint start = uptime();
